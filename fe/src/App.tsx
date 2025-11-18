@@ -1,13 +1,12 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import { FetchDmcColors, DmcColor } from "./Dmc";
-import DmcList from "./DmcList";
+import { FetchFlosses, Floss } from "./Floss";
+import DmcList from "./FlossList";
 
 function App() {
-  const [colors, setColors] = React.useState<DmcColor[]>([]);
+  const [colors, setColors] = React.useState<Floss[]>([]);
   React.useEffect(() => {
-    FetchDmcColors().then(setColors);
+    FetchFlosses().then(setColors);
   }, []);
   return <DmcList colors={colors} />;
 }

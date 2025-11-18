@@ -1,7 +1,7 @@
 import React from "react";
-import { DmcColor } from "./Dmc";
+import { Floss } from "./Floss";
 
-export default function DmcList({ colors }: { colors: DmcColor[] }) {
+export default function FlossList({ colors }: { colors: Floss[] }) {
   return (
     <table className="table">
       <thead>
@@ -17,7 +17,7 @@ export default function DmcList({ colors }: { colors: DmcColor[] }) {
             <td>{color.name}</td>
             <td>{color.description}</td>
             <td
-              style={{ color: "blue", backgroundColor: `#${color.rgb}` }}
+              style={{ color: "blue", backgroundColor: color.color.toHex() }}
             ></td>
           </tr>
         ))}
