@@ -1,5 +1,5 @@
 import React from "react";
-import "./App.css";
+import "./App.scss";
 import { FetchFlosses, Floss } from "./Floss";
 import DmcList from "./FlossList";
 
