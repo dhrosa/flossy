@@ -1,14 +1,21 @@
 import React from "react";
 import "./App.scss";
 import { FetchFlosses, Floss } from "./Floss";
-import FlossList from "./FlossList";
+import Picker from "./Picker";
 
 function App() {
-  const [colors, setColors] = React.useState<Floss[]>([]);
+  const [flosses, setFlosses] = React.useState<Floss[]>([]);
   React.useEffect(() => {
-    FetchFlosses().then(setColors);
+    FetchFlosses().then(setFlosses);
   }, []);
-  return <FlossList colors={colors} />;
+  return (
+    <section className="section">
+      <div className="container">
+        <h1 className="title">Flossy</h1>
+        <Picker flosses={flosses} />
+      </div>
+    </section>
+  );
 }
 
 export default App;
