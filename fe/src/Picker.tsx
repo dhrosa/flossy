@@ -44,19 +44,17 @@ function Symbol({
   );
 }
 
-function FlossPanelBlock({ floss }: { floss: Floss }) {
+function FlossButton({ floss }: { floss: Floss } & ComponentProps<"button">) {
   return (
-    <button className="panel-block">
-      <div className="floss">
-        <span
-          className="icon color"
-          style={{ backgroundColor: floss.color.toHex() }}
-        />
-        <div className="text">
-          <p className="name">{floss.name}</p>
-          <p className="description">{floss.description}</p>
-        </div>
-      </div>
+    <button
+      className={
+        "floss button " +
+        (floss.color.isLight() ? "has-text-dark" : "has-text-light")
+      }
+      style={{ backgroundColor: floss.color.toHex() }}
+      title={floss.description}
+    >
+      {floss.name}
     </button>
   );
 }
@@ -81,27 +79,27 @@ export default function Picker({
         Choose Floss
       </button>
       <Modal active={active} onClose={() => setActive(false)}>
-        <nav className="panel">
-          <p className="panel-heading">Choose Floss</p>
-          <div className="panel-block">
-            <p className="control has-icons-left">
-              <input
-                className="input"
-                type="text"
-                placeholder="Search"
-                name="search"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              <span className="icon is-left">
-                <Symbol name="search" />
-              </span>
-            </p>
+        <div className="box">
+          <p className="block control has-icons-left">
+            <input
+              className="input"
+              type="text"
+              placeholder="Search"
+              name="search"
+              autoComplete="off"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <span className="icon is-left">
+              <Symbol name="search" />
+            </span>
+          </p>
+          <div className="block grid">
+            {filteredFlosses.map((f) => (
+              <FlossButton floss={f} key={f.name} />
+            ))}
           </div>
-          {filteredFlosses.map((f) => (
-            <FlossPanelBlock key={f.name} floss={f} />
-          ))}
-        </nav>
+        </div>
       </Modal>
     </div>
   );
