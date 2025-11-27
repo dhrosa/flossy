@@ -1,11 +1,12 @@
-import React from "react";
 import "./App.scss";
+
+import { useState, useEffect } from "react";
 import { FetchFlosses, Floss } from "./Floss";
 import Picker from "./Picker";
 
-function App() {
-  const [flosses, setFlosses] = React.useState<Floss[]>([]);
-  React.useEffect(() => {
+export function App() {
+  const [flosses, setFlosses] = useState<Floss[]>([]);
+  useEffect(() => {
     FetchFlosses().then(setFlosses);
   }, []);
   return (
@@ -17,5 +18,3 @@ function App() {
     </section>
   );
 }
-
-export default App;

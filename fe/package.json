@@ -1,53 +1,23 @@
 {
-  "name": "fe",
-  "version": "0.1.0",
+  "name": "parcel-react-client-starter",
   "private": true,
+  "version": "0.0.0",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
   "dependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.126",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
     "bulma": "^1.0.4",
     "color-core": "^1.4.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-scripts": "5.0.1",
-    "sass": "^1.94.1",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.57.1",
-    "prettier": "3.6.2",
-    "prettier-eslint": "^16.4.2",
-    "typescript": "^5.9.3"
+    "@parcel/transformer-sass": "^2.16.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "buffer": "^6.0.3",
+    "parcel": "^2.14.0"
   }
 }
