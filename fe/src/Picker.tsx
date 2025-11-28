@@ -1,48 +1,7 @@
-import { useEffect, useState, ReactNode, ComponentProps } from "react";
+import { useState, ComponentProps } from "react";
 import { Floss } from "./Floss";
-
-function Modal({
-  children,
-  active,
-  onClose,
-}: {
-  children?: ReactNode;
-  active: boolean;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const onEscape = (event: any) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", onEscape);
-    return () => {
-      window.removeEventListener("keydown", onEscape);
-    };
-  });
-  return (
-    <div className={"modal " + (active ? "is-active" : "")}>
-      <div className="modal-background" onClick={onClose} />
-      <div className="modal-content">{children}</div>
-      <button className="modal-close is-large" aria-label="close" />
-    </div>
-  );
-}
-
-function Symbol({
-  className,
-  name,
-}: {
-  className?: string;
-  name: string;
-} & ComponentProps<"span">) {
-  return (
-    <span className={`material-symbols-outlined ${className || ""}`}>
-      {name}
-    </span>
-  );
-}
+import { Modal } from "./Modal";
+import { Symbol } from "./Symbol";
 
 function FlossButton({
   floss,
