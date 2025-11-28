@@ -44,7 +44,10 @@ function Symbol({
   );
 }
 
-function FlossButton({ floss }: { floss: Floss } & ComponentProps<"button">) {
+function FlossButton({
+  floss,
+  ...rest
+}: { floss: Floss } & ComponentProps<"button">) {
   return (
     <button
       className={
@@ -53,6 +56,7 @@ function FlossButton({ floss }: { floss: Floss } & ComponentProps<"button">) {
       }
       style={{ backgroundColor: floss.color.toHex() }}
       title={floss.description}
+      {...rest}
     >
       {floss.name}
     </button>
@@ -60,11 +64,13 @@ function FlossButton({ floss }: { floss: Floss } & ComponentProps<"button">) {
 }
 
 export default function Picker({
-  currentFloss,
   flosses,
+  currentFloss,
+  onPick,
 }: {
-  currentFloss?: Floss;
   flosses: Floss[];
+  currentFloss: Floss | null;
+  onPick: (floss: Floss) => void;
 }) {
   const [active, setActive] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -73,11 +79,16 @@ export default function Picker({
       f.name.toLowerCase().includes(searchText) ||
       f.description.toLowerCase().includes(searchText),
   );
+  const initialButton = currentFloss ? (
+    <FlossButton floss={currentFloss} onClick={() => setActive(true)} />
+  ) : (
+    <button className="floss button" onClick={() => setActive(true)}>
+      Choose Floss
+    </button>
+  );
   return (
     <div className="floss-picker">
-      <button className="button" onClick={() => setActive(true)}>
-        Choose Floss
-      </button>
+      {initialButton}
       <Modal active={active} onClose={() => setActive(false)}>
         <div className="box">
           <p className="block control has-icons-left">
@@ -94,9 +105,16 @@ export default function Picker({
               <Symbol name="search" />
             </span>
           </p>
-          <div className="block grid">
+          <div className="flosses block grid">
             {filteredFlosses.map((f) => (
-              <FlossButton floss={f} key={f.name} />
+              <FlossButton
+                floss={f}
+                key={f.name}
+                onClick={() => {
+                  setActive(false);
+                  onPick(f);
+                }}
+              />
             ))}
           </div>
         </div>
