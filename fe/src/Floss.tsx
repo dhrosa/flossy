@@ -1,15 +1,36 @@
-import {Color} from 'color-core';
+import { Color } from "color-core";
 
-export interface Floss {
+export class Floss {
   name: string;
   description: string;
   color: Color;
+
+  constructor({
+    name,
+    description,
+    color,
+  }: {
+    name: string;
+    description: string;
+    color: Color;
+  }) {
+    this.name = name;
+    this.description = description;
+    this.color = color;
+  }
+
+  cssStyle() {
+    return {
+      color: this.color.isLight() ? "var(--bulma-dark)" : "var(--bulma-light)",
+      backgroundColor: this.color.toHex(),
+    };
+  }
 }
 
 function compareNames(a: Floss, b: Floss): number {
   const normalizeName = (name: string): string => {
     if (isNaN(Number(name))) {
-        return name;
+      return name;
     }
     return name.padStart(4, "0");
   };
@@ -25,11 +46,13 @@ export async function FetchFlosses(): Promise<Floss[]> {
 
   var entries: Floss[] = [];
   for (let i = 0; i < lines.length; i += 3) {
-    entries.push({
-      name: lines[i],
-      description: lines[i + 1],
-      color: new Color(lines[i + 2]),
-    });
+    entries.push(
+      new Floss({
+        name: lines[i],
+        description: lines[i + 1],
+        color: new Color(lines[i + 2]),
+      }),
+    );
   }
 
   entries.sort(compareNames);

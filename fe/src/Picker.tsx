@@ -9,11 +9,8 @@ function FlossButton({
 }: { floss: Floss } & ComponentProps<"button">) {
   return (
     <button
-      className={
-        "floss button " +
-        (floss.color.isLight() ? "has-text-dark" : "has-text-light")
-      }
-      style={{ backgroundColor: floss.color.toHex() }}
+      className="floss button"
+      style={floss.cssStyle()}
       title={floss.description}
       {...rest}
     >
