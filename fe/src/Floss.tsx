@@ -1,4 +1,4 @@
-import { Color } from "color-core";
+import Color from "colorjs.io";
 
 // Sourced from https://github.com/bmanturner/hex-dmc/blob/master/est_dmc_hex.txt
 import flossListText from "bundle-text:./floss.txt";
@@ -32,9 +32,16 @@ export class Floss {
   }
 
   cssStyle() {
+    const color = this.color;
+    // TODO: Figure out colorjs.io utility for this. The existing luminance
+    // calculations provides poor contrast on dark backgrounds.
+    const brightness = Math.floor(
+      ((color.r * 299 + color.g * 587 + color.b * 114) * 255) / 1000,
+    );
+    const isLight = brightness > 128;
     return {
-      color: this.color.isLight() ? "var(--bulma-dark)" : "var(--bulma-light)",
-      backgroundColor: this.color.toHex(),
+      color: isLight ? "var(--bulma-dark)" : "var(--bulma-light)",
+      backgroundColor: this.color.display(),
     };
   }
 }
@@ -58,7 +65,7 @@ function loadFlosses(): Floss[] {
       new Floss({
         name: lines[i],
         description: lines[i + 1],
-        color: new Color(lines[i + 2]),
+        color: new Color("#" + lines[i + 2]),
       }),
     );
   }

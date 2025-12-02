@@ -13,9 +13,7 @@ function Layout() {
     <>
       <Navigation />
       <section className="section">
-        <div className="container">
-          <Outlet />
-        </div>
+        <Outlet />
       </section>
     </>
   );

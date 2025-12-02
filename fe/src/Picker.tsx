@@ -1,23 +1,8 @@
-import { useState, ComponentProps } from "react";
+import { useState } from "react";
 import { Floss } from "./Floss";
 import { Modal } from "./Modal";
 import { Symbol } from "./Symbol";
-
-function FlossButton({
-  floss,
-  ...rest
-}: { floss: Floss } & ComponentProps<"button">) {
-  return (
-    <button
-      className="floss button"
-      style={floss.cssStyle()}
-      title={floss.description}
-      {...rest}
-    >
-      {floss.name}
-    </button>
-  );
-}
+import { FlossButton } from "./FlossButton";
 
 export default function Picker({
   flosses,
@@ -61,7 +46,8 @@ export default function Picker({
               <Symbol name="search" />
             </span>
           </p>
-          <div className="flosses block grid">
+          <div className="block">{filteredFlosses.length} results</div>
+          <div className="block grid">
             {filteredFlosses.map((f) => (
               <FlossButton
                 floss={f}
