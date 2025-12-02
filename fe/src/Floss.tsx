@@ -1,9 +1,21 @@
 import { Color } from "color-core";
 
+// Sourced from https://github.com/bmanturner/hex-dmc/blob/master/est_dmc_hex.txt
+import flossListText from "bundle-text:./floss.txt";
+
 export class Floss {
   name: string;
   description: string;
   color: Color;
+
+  private static allFlosses: Floss[] = [];
+
+  static all(): Floss[] {
+    if (this.allFlosses.length == 0) {
+      this.allFlosses = loadFlosses();
+    }
+    return this.allFlosses;
+  }
 
   constructor({
     name,
@@ -37,12 +49,8 @@ function compareNames(a: Floss, b: Floss): number {
   return normalizeName(a.name).localeCompare(normalizeName(b.name));
 }
 
-export async function FetchFlosses(): Promise<Floss[]> {
-  let response = await fetch(
-    "https://raw.githubusercontent.com/bmanturner/hex-dmc/refs/heads/master/est_dmc_hex.txt",
-  );
-  let text = await response.text();
-  let lines = text.split("\n").map((line) => line.trim());
+function loadFlosses(): Floss[] {
+  let lines = flossListText.split("\n").map((line) => line.trim());
 
   var entries: Floss[] = [];
   for (let i = 0; i < lines.length; i += 3) {
