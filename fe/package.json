@@ -19,7 +19,12 @@
     "@parcel/transformer-sass": "^2.16.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@typescript-eslint/parser": "^8.48.1",
     "buffer": "^6.0.3",
-    "parcel": "^2.14.0"
+    "eslint": "^8.57.1",
+    "parcel": "^2.14.0",
+    "prettier": "^3.7.4",
+    "prettier-eslint": "^16.4.2",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,19 +1,33 @@
 import "./App.scss";
 
 import { createRoot } from "react-dom/client";
-import { StrictMode } from "react";
+import { StrictMode, useSyncExternalStore } from "react";
 import HomePage from "./HomePage";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import Navigation from "./Navigation";
 import NearestColorsPage from "./NearestColorsPage";
 import BlendPage from "./BlendPage";
+import { preloadSubscribe, preloadSnapshot } from "./Preload";
+
+function LoadingScreen() {
+  return (
+    <>
+      <p>Loading...</p>
+      <progress className="progress" />
+    </>
+  );
+}
 
 function Layout() {
+  const preloadCompleted = useSyncExternalStore(
+    preloadSubscribe,
+    preloadSnapshot,
+  );
   return (
     <>
       <Navigation />
       <section className="section">
-        <Outlet />
+        {preloadCompleted ? <Outlet /> : <LoadingScreen />}
       </section>
     </>
   );
