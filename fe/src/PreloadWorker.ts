@@ -1,4 +1,22 @@
-setTimeout(() => {
-  console.log("Preload complete");
-  postMessage(null);
-}, 2000);
+import { PreloadProgress } from "./PreloadProgress";
+
+// Type-safe wrapper around postMessage.
+function emit(progress: PreloadProgress) {
+  postMessage(progress);
+}
+
+function sleep(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
+
+async function preload() {
+  await sleep(0.5);
+  const denominator = 100;
+  for (let i = 0; i < denominator; i++) {
+    emit({ type: "preloading", numerator: i, denominator: denominator });
+    await sleep(0.05);
+  }
+  emit({ type: "complete" });
+}
+
+preload();
