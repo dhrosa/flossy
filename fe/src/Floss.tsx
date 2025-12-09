@@ -3,18 +3,18 @@ import Color from "colorjs.io";
 // Sourced from https://github.com/bmanturner/hex-dmc/blob/master/est_dmc_hex.txt
 import flossListText from "bundle-text:./floss.txt";
 
-export class Floss {
-  name: string;
-  description: string;
-  color: Color;
+export class SingleFloss {
+  readonly name: string;
+  readonly description: string;
+  readonly color: Color;
 
-  private static allFlosses: Floss[] = [];
+  private static _all: SingleFloss[] = [];
 
-  static all(): Floss[] {
-    if (this.allFlosses.length == 0) {
-      this.allFlosses = loadFlosses();
+  static all(): SingleFloss[] {
+    if (this._all.length == 0) {
+      this._all = loadFlosses();
     }
-    return this.allFlosses;
+    return this._all;
   }
 
   constructor({
@@ -31,20 +31,51 @@ export class Floss {
     this.color = color;
   }
 
-  cssStyle() {
-    const color = this.color;
-    // TODO: Figure out colorjs.io utility for this. The existing luminance
-    // calculations provides poor contrast on dark backgrounds.
-    const brightness = Math.floor(
-      ((color.r * 299 + color.g * 587 + color.b * 114) * 255) / 1000,
-    );
-    const isLight = brightness > 128;
+  get cssStyle() {
     return {
-      color: isLight ? "var(--bulma-dark)" : "var(--bulma-light)",
+      color: textColor(this.color),
       backgroundColor: this.color.display(),
     };
   }
 }
+
+export class Blend {
+  readonly flosses: SingleFloss[];
+  readonly name: string;
+  readonly description: string;
+  readonly color: Color;
+
+  constructor(flosses: SingleFloss[]) {
+    this.flosses = flosses;
+    this.name = flosses.map((f) => f.name).join(" + ");
+    this.description = flosses.map((f) => f.description).join(" + ");
+
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    for (const floss of flosses) {
+      r += floss.color.srgb.r;
+      g += floss.color.srgb.g;
+      b += floss.color.srgb.b;
+    }
+    const n = this.flosses.length;
+    this.color = new Color("srgb", [r / n, g / n, b / n]);
+  }
+
+  get cssStyle() {
+    const gradientArgs = this.flosses.map((f) => f.color.display()).join(", ");
+    return {
+      color: textColor(this.color),
+      background: `linear-gradient(45deg, ${gradientArgs})`,
+    };
+  }
+
+  contains(floss: SingleFloss): boolean {
+    return this.flosses.find((f) => f.name === floss.name) !== undefined;
+  }
+}
+
+export type Floss = SingleFloss | Blend;
 
 function compareNames(a: Floss, b: Floss): number {
   const normalizeName = (name: string): string => {
@@ -56,13 +87,13 @@ function compareNames(a: Floss, b: Floss): number {
   return normalizeName(a.name).localeCompare(normalizeName(b.name));
 }
 
-function loadFlosses(): Floss[] {
+function loadFlosses(): SingleFloss[] {
   let lines = flossListText.split("\n").map((line) => line.trim());
 
-  var entries: Floss[] = [];
+  var entries: SingleFloss[] = [];
   for (let i = 0; i < lines.length; i += 3) {
     entries.push(
-      new Floss({
+      new SingleFloss({
         name: lines[i],
         description: lines[i + 1],
         color: new Color("#" + lines[i + 2]),
@@ -72,4 +103,14 @@ function loadFlosses(): Floss[] {
 
   entries.sort(compareNames);
   return entries;
+}
+
+function textColor(color: Color): string {
+  // TODO: Figure out colorjs.io utility for this. The existing luminance
+  // calculations provides poor contrast on dark backgrounds.
+  const brightness = Math.floor(
+    ((color.r * 299 + color.g * 587 + color.b * 114) * 255) / 1000,
+  );
+  const isLight = brightness > 128;
+  return isLight ? "var(--bulma-dark)" : "var(--bulma-light)";
 }

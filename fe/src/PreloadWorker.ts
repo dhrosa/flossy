@@ -10,11 +10,10 @@ function sleep(seconds: number) {
 }
 
 async function preload() {
-  await sleep(0.5);
-  const denominator = 100;
+  const denominator = 10;
   for (let i = 0; i < denominator; i++) {
     emit({ type: "preloading", numerator: i, denominator: denominator });
-    await sleep(0.05);
+    await sleep(0.01);
   }
   emit({ type: "complete" });
 }

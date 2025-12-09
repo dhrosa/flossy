@@ -1,6 +1,6 @@
 import Picker from "./Picker";
-import { Floss } from "./Floss";
-import { ComponentProps, useState } from "react";
+import { Floss, SingleFloss, Blend } from "./Floss";
+import { ComponentProps, useMemo, useState } from "react";
 import { FlossButton } from "./FlossButton";
 
 function Label({ ...rest }: ComponentProps<"label">) {
@@ -26,13 +26,29 @@ function sortedByDistance(target: Floss, choices: Floss[]): Floss[] {
   return choices.toSorted(compareDistance);
 }
 
+function allBlends(flosses: SingleFloss[]): Blend[] {
+  const blends: Blend[] = [];
+  for (let i = 0; i < flosses.length; i++) {
+    for (let j = i + 1; j < flosses.length; j++) {
+      blends.push(new Blend([flosses[i], flosses[j]]));
+    }
+  }
+  return blends;
+}
+
 export default function NearestColorsPage() {
-  const choices = Floss.all();
   const [currentFloss, setCurrentFloss] = useState<Floss | null>(null);
-  const [resultLimit, setResultLimit] = useState(4);
-  const nearest = currentFloss
+  const [resultLimit, setResultLimit] = useState(8);
+
+  const singleFlosses = SingleFloss.all();
+  const blends = allBlends(singleFlosses);
+  const choices = (singleFlosses as Floss[]).concat(blends);
+
+  console.time("distances");
+  const nearest: Floss[] = currentFloss
     ? sortedByDistance(currentFloss, choices).slice(1, resultLimit + 1)
     : [];
+  console.timeEnd("distances");
   return (
     <>
       <p className="title is-4">Nearest Color Finder</p>
@@ -41,7 +57,7 @@ export default function NearestColorsPage() {
           <Label>Target Floss</Label>
           <Control>
             <Picker
-              flosses={choices}
+              flosses={singleFlosses}
               currentFloss={currentFloss}
               onPick={setCurrentFloss}
             />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Floss } from "./Floss";
+import { SingleFloss, Floss } from "./Floss";
 import Picker from "./Picker";
 
 export default function HomePage() {
@@ -7,7 +7,7 @@ export default function HomePage() {
   return (
     <>
       <Picker
-        flosses={Floss.all()}
+        flosses={SingleFloss.all()}
         currentFloss={currentFloss}
         onPick={setCurrentFloss}
       />
