@@ -138,8 +138,56 @@ function CollectionRow({ collection }: { collection: Collection }) {
   );
 }
 
-export function CollectionsPage() {
+// Table row for creating a new collection.
+function NewCollectionRow() {
   const queryClient = useQueryClient();
+  const [newName, setNewName] = useState("");
+
+  // Triggered by add button.
+  const addMutation = useMutation({
+    mutationFn: async () => {
+      await Collection.create(newName);
+      setNewName("");
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  return (
+    <tr>
+      <td>
+        <input
+          className="input"
+          type="text"
+          placeholder="New collection name..."
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+        {addMutation.error && (
+          <ErrorHelp>
+            {addMutation.error.name == "ConstraintError"
+              ? "Collection with that name already exists."
+              : addMutation.error.toString()}
+          </ErrorHelp>
+        )}
+      </td>
+      <td>
+        <button
+          className={`button ${addMutation.isPending && "is-loading"}`}
+          onClick={() => addMutation.mutate()}
+        >
+          <span className="icon-text">
+            <span className="icon">
+              <Symbol name="add" />
+            </span>
+            <span>Create</span>
+          </span>
+        </button>
+      </td>
+    </tr>
+  );
+}
+
+export function CollectionsPage() {
   const {
     isPending,
     error,
@@ -148,17 +196,6 @@ export function CollectionsPage() {
     queryKey,
     queryFn: Collection.all,
   });
-  // Ref for new collection input element.
-  const newNameRef = useRef<HTMLInputElement>(document.createElement("input"));
-
-  // Triggered by add button.
-  const addMutation = useMutation({
-    mutationFn: async () => {
-      await Collection.create(newNameRef.current.value);
-      queryClient.invalidateQueries({ queryKey });
-    },
-  });
-
   if (isPending) {
     return <p>Loading...</p>;
   }
@@ -176,37 +213,12 @@ export function CollectionsPage() {
           </tr>
         </thead>
         <tbody>
+          <NewCollectionRow />
           {collections.map((c) => (
             <CollectionRow key={c.name} collection={c} />
           ))}
         </tbody>
       </table>
-      {/* New collection form  */}
-      <div className="box">
-        <Field>
-          <Label>New Collection Name</Label>
-          <Control>
-            <input ref={newNameRef} className="input" type="text" />
-          </Control>
-        </Field>
-        <Field>
-          <Control>
-            <button
-              className={`button ${addMutation.isPending && "is-loading"}`}
-              onClick={() => addMutation.mutate()}
-            >
-              Create
-            </button>
-          </Control>
-        </Field>
-        {addMutation.error && (
-          <ErrorHelp>
-            {addMutation.error.name == "ConstraintError"
-              ? "Collection with that name already exists."
-              : addMutation.error.toString()}
-          </ErrorHelp>
-        )}
-      </div>
     </>
   );
 }
