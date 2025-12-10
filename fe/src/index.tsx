@@ -7,6 +7,7 @@ import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import Navigation from "./Navigation";
 import NearestColorsPage from "./NearestColorsPage";
 import BlendPage from "./BlendPage";
+import { CollectionsPage } from "./CollectionsPage";
 
 function Layout() {
   return (
@@ -29,6 +30,7 @@ root.render(
           <Route index element={<HomePage />} />
           <Route path="/nearest" element={<NearestColorsPage />} />
           <Route path="/blend" element={<BlendPage />} />
+          <Route path="/collections" element={<CollectionsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -35,6 +35,7 @@ export default function Navigation() {
       <div className={"navbar-menu" + (menuActive ? "is-active" : "")}>
         <div className="navbar-start"></div>
         <div className="navbar-end">
+          <Item to="/collections">My Collections</Item>
           <Item to="/nearest">Find Nearest Colors</Item>
           <Item to="/blend">Blend Colors</Item>
         </div>
