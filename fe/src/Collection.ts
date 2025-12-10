@@ -29,9 +29,9 @@ export class Collection {
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
-      store.add({ name: this.name });
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      const request = store.add({ name: this.name });
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
     });
   }
 

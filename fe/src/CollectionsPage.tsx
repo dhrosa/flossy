@@ -5,13 +5,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 function CollectionList() {
   const queryClient = useQueryClient();
   const queryKey = ["collections"];
-  const { isPending, error, data } = useQuery({
+  const {
+    isPending,
+    error,
+    data: collections,
+  } = useQuery({
     queryKey,
     queryFn: Collection.all,
   });
   const inputRef = useRef<HTMLInputElement>(document.createElement("input"));
 
-  const mutation = useMutation({
+  const addMutation = useMutation({
     mutationFn: async () => {
       const collection = new Collection(inputRef.current.value);
       await collection.save();
@@ -29,7 +33,7 @@ function CollectionList() {
   return (
     <>
       <ul>
-        {data.map((c) => (
+        {collections.map((c) => (
           <li key={c.name}>{c.name}</li>
         ))}
       </ul>
@@ -40,9 +44,19 @@ function CollectionList() {
         type="text"
         placeholder="New collection name..."
       />
-      <button className="button" onClick={() => mutation.mutate()}>
+      <button
+        className={`button ${addMutation.isPending && "is-loading"}`}
+        onClick={() => addMutation.mutate()}
+      >
         Create new collection
       </button>
+      {addMutation.error && (
+        <p className="help is-danger">
+          {addMutation.error.name == "ConstraintError"
+            ? "Collection with that name already exists."
+            : `Error while creating collection: ${addMutation.error.toString()}`}
+        </p>
+      )}
     </>
   );
 }
