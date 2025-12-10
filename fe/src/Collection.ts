@@ -71,6 +71,9 @@ export class Collection {
 
   // Create a new Collection in the database.
   static async create(name: string): Promise<Collection> {
+    if (!name) {
+      throw new Error("Name cannot be empty");
+    }
     const collection = new Collection(name);
     const db = await openDb();
     return new Promise((resolve, reject) => {
@@ -84,6 +87,9 @@ export class Collection {
 
   // Rename collection in the database.
   async rename(newName: string): Promise<Collection> {
+    if (!newName) {
+      throw new Error("New name cannot be empty");
+    }
     const db = await openDb();
     const newCollection = new Collection(newName);
     return new Promise((resolve, reject) => {

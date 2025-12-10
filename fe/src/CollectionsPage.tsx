@@ -98,7 +98,7 @@ function CollectionRow({ collection }: { collection: Collection }) {
                 <ErrorHelp>
                   {renameMutation.error.name == "ConstraintError"
                     ? "Collection with that name already exists."
-                    : `Error while creating collection: ${renameMutation.error.toString()}`}
+                    : renameMutation.error.toString()}
                 </ErrorHelp>
               )}
             </Field>
@@ -128,9 +128,7 @@ function CollectionRow({ collection }: { collection: Collection }) {
                 Cancel
               </button>
               {deleteMutation.isError && (
-                <p className="help is-danger">
-                  Error: {deleteMutation.error.message}
-                </p>
+                <ErrorHelp>{deleteMutation.error.message}</ErrorHelp>
               )}
             </p>
           </div>
@@ -205,7 +203,7 @@ export function CollectionsPage() {
           <ErrorHelp>
             {addMutation.error.name == "ConstraintError"
               ? "Collection with that name already exists."
-              : `Error while creating collection: ${addMutation.error.toString()}`}
+              : addMutation.error.toString()}
           </ErrorHelp>
         )}
       </div>
