@@ -153,12 +153,12 @@ export function CollectionsPage() {
   // Ref for new collection input element.
   const newNameRef = useRef<HTMLInputElement>(document.createElement("input"));
 
+  // Triggered by add button.
   const addMutation = useMutation({
     mutationFn: async () => {
-      const collection = new Collection(newNameRef.current.value);
-      await collection.save();
+      await Collection.create(newNameRef.current.value);
+      queryClient.invalidateQueries({ queryKey });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   if (isPending) {
@@ -183,26 +183,32 @@ export function CollectionsPage() {
           ))}
         </tbody>
       </table>
-
-      <input
-        ref={newNameRef}
-        className="input"
-        type="text"
-        placeholder="New collection name..."
-      />
-      <button
-        className={`button ${addMutation.isPending && "is-loading"}`}
-        onClick={() => addMutation.mutate()}
-      >
-        Create new collection
-      </button>
-      {addMutation.error && (
-        <ErrorHelp>
-          {addMutation.error.name == "ConstraintError"
-            ? "Collection with that name already exists."
-            : `Error while creating collection: ${addMutation.error.toString()}`}
-        </ErrorHelp>
-      )}
+      {/* New collection form  */}
+      <div className="box">
+        <Field>
+          <Label>New Collection Name</Label>
+          <Control>
+            <input ref={newNameRef} className="input" type="text" />
+          </Control>
+        </Field>
+        <Field>
+          <Control>
+            <button
+              className={`button ${addMutation.isPending && "is-loading"}`}
+              onClick={() => addMutation.mutate()}
+            >
+              Create
+            </button>
+          </Control>
+        </Field>
+        {addMutation.error && (
+          <ErrorHelp>
+            {addMutation.error.name == "ConstraintError"
+              ? "Collection with that name already exists."
+              : `Error while creating collection: ${addMutation.error.toString()}`}
+          </ErrorHelp>
+        )}
+      </div>
     </>
   );
 }
