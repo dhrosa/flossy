@@ -30,10 +30,7 @@ export class Collection {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
       store.add({ name: this.name });
-      tx.oncomplete = () => {
-        resolve();
-        console.log("save complete");
-      };
+      tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
   }
@@ -44,7 +41,6 @@ export class Collection {
     const store = tx.objectStore("collections");
     const request = store.getAll();
     return new Promise((resolve, reject) => {
-      console.log("greetings");
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const records: CollectionRecord[] = request.result;

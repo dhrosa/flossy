@@ -8,6 +8,7 @@ import Navigation from "./Navigation";
 import NearestColorsPage from "./NearestColorsPage";
 import BlendPage from "./BlendPage";
 import { CollectionsPage } from "./CollectionsPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function Layout() {
   return (
@@ -20,19 +21,22 @@ function Layout() {
   );
 }
 
-let container = document.getElementById("app")!;
-let root = createRoot(container);
+const container = document.getElementById("app")!;
+const root = createRoot(container);
+const queryClient = new QueryClient();
 root.render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="/nearest" element={<NearestColorsPage />} />
-          <Route path="/blend" element={<BlendPage />} />
-          <Route path="/collections" element={<CollectionsPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path="/nearest" element={<NearestColorsPage />} />
+            <Route path="/blend" element={<BlendPage />} />
+            <Route path="/collections" element={<CollectionsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   </StrictMode>,
 );
