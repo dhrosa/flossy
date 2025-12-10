@@ -24,7 +24,11 @@ export function Modal({
     <div className={"modal " + (active ? "is-active" : "")}>
       <div className="modal-background" onClick={onClose} />
       <div className="modal-content">{children}</div>
-      <button className="modal-close is-large" aria-label="close" />
+      <button
+        className="modal-close is-large"
+        aria-label="close"
+        onClick={onClose}
+      />
     </div>
   );
 }

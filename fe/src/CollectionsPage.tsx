@@ -1,6 +1,56 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Collection } from "./Collection";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Modal } from "./Modal";
+
+function CollectionListItem({ collection }: { collection: Collection }) {
+  const [deleteModalActive, setDeleteModalActive] = useState(false);
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await collection.delete();
+      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      setDeleteModalActive(false);
+    },
+  });
+
+  return (
+    <li>
+      {collection.name}
+      <button className="delete" onClick={() => setDeleteModalActive(true)} />
+      <Modal
+        active={deleteModalActive}
+        onClose={() => setDeleteModalActive(false)}
+      >
+        <div className="box">
+          <p className="block">
+            Are you sure you want to delete the <em>{collection.name}</em>{" "}
+            collection?
+          </p>
+          <p className="buttons block">
+            <button
+              className={`button is-danger ${deleteMutation.isPending && "is-loading"}`}
+              onClick={() => deleteMutation.mutate()}
+            >
+              Delete
+            </button>
+            <button
+              className="button"
+              onClick={() => setDeleteModalActive(false)}
+            >
+              Cancel
+            </button>
+            {deleteMutation.isError && (
+              <p className="help is-danger">
+                Error: {deleteMutation.error.message}
+              </p>
+            )}
+          </p>
+        </div>
+      </Modal>
+    </li>
+  );
+}
 
 function CollectionList() {
   const queryClient = useQueryClient();
@@ -34,7 +84,7 @@ function CollectionList() {
     <>
       <ul>
         {collections.map((c) => (
-          <li key={c.name}>{c.name}</li>
+          <CollectionListItem key={c.name} collection={c} />
         ))}
       </ul>
 

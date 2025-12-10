@@ -35,6 +35,17 @@ export class Collection {
     });
   }
 
+  async delete(): Promise<void> {
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("collections", "readwrite");
+      const store = tx.objectStore("collections");
+      const request = store.delete(this.name);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
+    });
+  }
+
   static async all(): Promise<Collection[]> {
     const db = await openDb();
     const tx = db.transaction("collections", "readonly");
