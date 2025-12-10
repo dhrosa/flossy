@@ -1,3 +1,5 @@
+// IndexedDB storage for user's floss collections.
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("collections", 1);
@@ -29,9 +31,22 @@ export class Collection {
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
-      const request = store.add({ name: this.name });
+      const request = store.add(this);
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve();
+    });
+  }
+
+  async rename(newName: string): Promise<Collection> {
+    const db = await openDb();
+    const newCollection = new Collection(newName);
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("collections", "readwrite");
+      const store = tx.objectStore("collections");
+      const deleteRequest = store.delete(this.name);
+      const addRequest = store.add(newCollection);
+      addRequest.onerror = () => reject(addRequest.error);
+      addRequest.onsuccess = () => resolve(newCollection);
     });
   }
 

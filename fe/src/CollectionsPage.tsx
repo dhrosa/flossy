@@ -1,16 +1,38 @@
+// Page for viewing basic information about all collections.
+
 import { useRef, useState } from "react";
 import { Collection } from "./Collection";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal } from "./Modal";
 import { Symbol } from "./Symbol";
+import { Control, ErrorHelp, Field, Label } from "./Form";
 
+// Query key for list of all collections.
+const queryKey = ["collections"];
+
+// Render a Collection as a table row.
 function CollectionRow({ collection }: { collection: Collection }) {
   const [deleteModalActive, setDeleteModalActive] = useState(false);
+  const [renameModalActive, setRenameModalActive] = useState(false);
   const queryClient = useQueryClient();
+
+  // Ref for the new name input element.
+  const newNameRef = useRef(document.createElement("input"));
+
+  // Triggered by rename button.
+  const renameMutation = useMutation({
+    mutationFn: async () => {
+      await collection.rename(newNameRef.current.value);
+      queryClient.invalidateQueries({ queryKey });
+      setRenameModalActive(false);
+    },
+  });
+
+  // Triggered by delete button.
   const deleteMutation = useMutation({
     mutationFn: async () => {
       await collection.delete();
-      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      queryClient.invalidateQueries({ queryKey });
       setDeleteModalActive(false);
     },
   });
@@ -19,7 +41,9 @@ function CollectionRow({ collection }: { collection: Collection }) {
     <tr>
       <td>{collection.name}</td>
       <td>
-        <button className="button">
+        {/* Actions */}
+        {/* Rename button */}
+        <button className="button" onClick={() => setRenameModalActive(true)}>
           <span className="icon-text">
             <span className="icon">
               <Symbol name="edit" />
@@ -27,6 +51,7 @@ function CollectionRow({ collection }: { collection: Collection }) {
             <span>Rename</span>
           </span>
         </button>
+        {/* Delete button */}
         <button className="button" onClick={() => setDeleteModalActive(true)}>
           <span className="icon-text">
             <span className="icon">
@@ -35,7 +60,51 @@ function CollectionRow({ collection }: { collection: Collection }) {
             <span>Delete</span>
           </span>
         </button>
-
+        {/* Rename button */}
+        <Modal
+          active={renameModalActive}
+          onClose={() => setRenameModalActive(false)}
+        >
+          <div className="box">
+            <Field>
+              <Label>New Name</Label>
+              <Control>
+                <input
+                  className="input"
+                  type="text"
+                  ref={newNameRef}
+                  defaultValue={collection.name}
+                />
+              </Control>
+            </Field>
+            <Field className="is-grouped">
+              <Control>
+                <button
+                  className={`button is-primary ${renameMutation.isPending && "is-loading"}`}
+                  onClick={() => renameMutation.mutate()}
+                >
+                  Submit
+                </button>
+              </Control>
+              <Control>
+                <button
+                  className="button"
+                  onClick={() => setRenameModalActive(false)}
+                >
+                  Cancel
+                </button>
+              </Control>
+              {renameMutation.isError && (
+                <ErrorHelp>
+                  {renameMutation.error.name == "ConstraintError"
+                    ? "Collection with that name already exists."
+                    : `Error while creating collection: ${renameMutation.error.toString()}`}
+                </ErrorHelp>
+              )}
+            </Field>
+          </div>
+        </Modal>
+        {/* Deletion modal */}
         <Modal
           active={deleteModalActive}
           onClose={() => setDeleteModalActive(false)}
@@ -71,9 +140,8 @@ function CollectionRow({ collection }: { collection: Collection }) {
   );
 }
 
-function CollectionList() {
+export function CollectionsPage() {
   const queryClient = useQueryClient();
-  const queryKey = ["collections"];
   const {
     isPending,
     error,
@@ -82,11 +150,12 @@ function CollectionList() {
     queryKey,
     queryFn: Collection.all,
   });
-  const inputRef = useRef<HTMLInputElement>(document.createElement("input"));
+  // Ref for new collection input element.
+  const newNameRef = useRef<HTMLInputElement>(document.createElement("input"));
 
   const addMutation = useMutation({
     mutationFn: async () => {
-      const collection = new Collection(inputRef.current.value);
+      const collection = new Collection(newNameRef.current.value);
       await collection.save();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
@@ -116,7 +185,7 @@ function CollectionList() {
       </table>
 
       <input
-        ref={inputRef}
+        ref={newNameRef}
         className="input"
         type="text"
         placeholder="New collection name..."
@@ -128,16 +197,12 @@ function CollectionList() {
         Create new collection
       </button>
       {addMutation.error && (
-        <p className="help is-danger">
+        <ErrorHelp>
           {addMutation.error.name == "ConstraintError"
             ? "Collection with that name already exists."
             : `Error while creating collection: ${addMutation.error.toString()}`}
-        </p>
+        </ErrorHelp>
       )}
     </>
   );
-}
-
-export function CollectionsPage() {
-  return <CollectionList />;
 }

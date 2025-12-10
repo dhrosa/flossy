@@ -2,18 +2,7 @@ import Picker from "./Picker";
 import { Floss, SingleFloss, Blend } from "./Floss";
 import { ComponentProps, useMemo, useState } from "react";
 import { FlossButton } from "./FlossButton";
-
-function Label({ ...rest }: ComponentProps<"label">) {
-  return <label className="label" {...rest} />;
-}
-
-function Field({ ...rest }: ComponentProps<"div">) {
-  return <div className="field" {...rest} />;
-}
-
-function Control({ ...rest }: ComponentProps<"div">) {
-  return <div className="control" {...rest} />;
-}
+import { Field, Label, Control } from "./Form";
 
 function flossDistance(a: Floss, b: Floss): number {
   return a.color.deltaE2000(b.color);
