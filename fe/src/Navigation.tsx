@@ -1,5 +1,5 @@
 import { ComponentProps, useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link } from "@tanstack/react-router";
 import { Symbol } from "./Symbol";
 
 function Item({

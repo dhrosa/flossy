@@ -1,8 +1,13 @@
-import Picker from "./Picker";
-import { Floss, SingleFloss, Blend } from "./Floss";
-import { ComponentProps, useMemo, useState } from "react";
-import { FlossButton } from "./FlossButton";
-import { Field, Label, Control } from "./Form";
+import Picker from "../Picker";
+import { Floss, SingleFloss, Blend } from "../Floss";
+import { useState } from "react";
+import { FlossButton } from "../FlossButton";
+import { Field, Label, Control } from "../Form";
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/nearest")({
+  component: NearestColorsPage,
+});
 
 function flossDistance(a: Floss, b: Floss): number {
   return a.color.deltaE2000(b.color);

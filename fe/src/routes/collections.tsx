@@ -1,11 +1,16 @@
 // Page for viewing basic information about all collections.
 
 import { useRef, useState } from "react";
-import { Collection } from "./Collection";
+import { Collection } from "../Collection";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Modal } from "./Modal";
-import { Symbol } from "./Symbol";
-import { Control, ErrorHelp, Field, Label } from "./Form";
+import { Modal } from "../Modal";
+import { Symbol } from "../Symbol";
+import { Control, ErrorHelp, Field, Label } from "../Form";
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/collections")({
+  component: CollectionsPage,
+});
 
 // Query key for list of all collections.
 const queryKey = ["collections"];
