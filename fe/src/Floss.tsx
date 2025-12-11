@@ -37,6 +37,20 @@ export class SingleFloss {
       backgroundColor: this.color.display(),
     };
   }
+
+  // Find floss with the given name.
+  static fromName(name: string): SingleFloss | undefined {
+    return this.all().find((f) => f.name === name);
+  }
+
+  // Predicate for floss whose name or description matches the given string.
+  matchesFilter(filter: string): boolean {
+    filter = filter.toLowerCase();
+    return (
+      this.name.toLowerCase().includes(filter) ||
+      this.description.toLowerCase().includes(filter)
+    );
+  }
 }
 
 export class Blend {

@@ -31,27 +31,30 @@ function openDb(): Promise<IDBDatabase> {
 // Database-stored version of a Collection.
 interface CollectionRecord {
   name: string;
+  flossNames: Set<string>;
 }
 
 // A user's floss collection.
 export class Collection {
   readonly name: string;
+  readonly flossNames: Set<string>;
   // Non-clonable value to block accidentally storing this object directly in the database.
-  readonly _cloneBlocker: Symbol;
+  private readonly _cloneBlocker: Symbol;
 
-  constructor(name: string) {
+  constructor(name: string, flossNames: Set<string>) {
     this.name = name;
+    this.flossNames = flossNames;
     this._cloneBlocker = Symbol();
   }
 
   // Serialize to database record.
   private toRecord(): CollectionRecord {
-    return { name: this.name };
+    return { name: this.name, flossNames: this.flossNames };
   }
 
   // Deserialize from database record.
   private static fromRecord(record: CollectionRecord): Collection {
-    return new Collection(record.name);
+    return new Collection(record.name, record.flossNames);
   }
 
   // Retrieve all collections from the database.
@@ -64,7 +67,7 @@ export class Collection {
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const records: CollectionRecord[] = request.result;
-        resolve(records.map((record) => new Collection(record.name)));
+        resolve(records.map(Collection.fromRecord));
       };
     });
   }
@@ -74,7 +77,7 @@ export class Collection {
     if (!name) {
       throw new Error("Name cannot be empty");
     }
-    const collection = new Collection(name);
+    const collection = new Collection(name, new Set());
     const db = await openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
@@ -85,18 +88,61 @@ export class Collection {
     });
   }
 
+  static async get(name: string): Promise<Collection> {
+    const db = await openDb();
+    const tx = db.transaction("collections", "readonly");
+    const store = tx.objectStore("collections");
+    const request = store.get(name);
+    return new Promise((resolve, reject) => {
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        resolve(Collection.fromRecord(request.result));
+      };
+    });
+  }
+
   // Rename collection in the database.
   async rename(newName: string): Promise<Collection> {
     if (!newName) {
       throw new Error("New name cannot be empty");
     }
     const db = await openDb();
-    const newCollection = new Collection(newName);
+    const newCollection = new Collection(newName, this.flossNames);
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
       store.delete(this.name);
       const request = store.add(newCollection.toRecord());
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(newCollection);
+    });
+  }
+
+  async addFloss(flossName: string): Promise<Collection> {
+    const newCollection = new Collection(
+      this.name,
+      new Set([...this.flossNames, flossName]),
+    );
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("collections", "readwrite");
+      const store = tx.objectStore("collections");
+      const request = store.put(newCollection.toRecord());
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(newCollection);
+    });
+  }
+
+  async removeFloss(flossName: string): Promise<Collection> {
+    const newCollection = new Collection(
+      this.name,
+      new Set(Array.from(this.flossNames).filter((name) => name !== flossName)),
+    );
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("collections", "readwrite");
+      const store = tx.objectStore("collections");
+      const request = store.put(newCollection.toRecord());
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve(newCollection);
     });

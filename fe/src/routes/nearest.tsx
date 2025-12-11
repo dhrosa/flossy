@@ -31,7 +31,7 @@ function allBlends(flosses: SingleFloss[]): Blend[] {
 }
 
 export default function NearestColorsPage() {
-  const [currentFloss, setCurrentFloss] = useState<Floss | null>(null);
+  const [currentFloss, setCurrentFloss] = useState<SingleFloss | null>(null);
   const [resultLimit, setResultLimit] = useState(8);
 
   const singleFlosses = SingleFloss.all();

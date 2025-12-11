@@ -3,10 +3,7 @@
 import { ComponentProps } from "react";
 
 // A Bulma form field.
-export function Field({
-  className,
-  ...rest
-}: { className?: string } & ComponentProps<"div">) {
+export function Field({ className, ...rest }: ComponentProps<"div">) {
   return <div className={`field ${className ?? ""}`} {...rest} />;
 }
 
@@ -16,8 +13,8 @@ export function Label({ ...rest }: ComponentProps<"label">) {
 }
 
 // A field control.
-export function Control({ ...rest }: ComponentProps<"div">) {
-  return <div className="control" {...rest} />;
+export function Control({ className, ...rest }: ComponentProps<"div">) {
+  return <div className={`control ${className ?? ""}`} {...rest} />;
 }
 
 // A field error message.

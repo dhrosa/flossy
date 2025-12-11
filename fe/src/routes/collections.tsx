@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal } from "../Modal";
 import { Symbol } from "../Symbol";
 import { Control, ErrorHelp, Field, Label } from "../Form";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/collections")({
   component: CollectionsPage,
@@ -44,7 +44,11 @@ function CollectionRow({ collection }: { collection: Collection }) {
 
   return (
     <tr>
-      <td>{collection.name}</td>
+      <td>
+        <Link to="/collections/$name" params={{ name: collection.name }}>
+          {collection.name}
+        </Link>
+      </td>
       <td>
         {/* Actions */}
         {/* Rename button */}

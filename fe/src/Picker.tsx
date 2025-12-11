@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Floss } from "./Floss";
+import { SingleFloss } from "./Floss";
 import { Modal } from "./Modal";
 import { Symbol } from "./Symbol";
 import { FlossButton } from "./FlossButton";
@@ -9,9 +9,9 @@ export default function Picker({
   currentFloss,
   onPick,
 }: {
-  flosses: Floss[];
-  currentFloss: Floss | null;
-  onPick: (floss: Floss) => void;
+  flosses: SingleFloss[];
+  currentFloss: SingleFloss | null;
+  onPick: (floss: SingleFloss) => void;
 }) {
   const [active, setActive] = useState(false);
   const [searchText, setSearchText] = useState("");
