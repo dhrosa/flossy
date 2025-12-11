@@ -205,7 +205,7 @@ export function CollectionsPage() {
 
   return (
     <>
-      <table className="collections table block">
+      <table className="collections table">
         <thead>
           <tr>
             <th>Collection Name</th>
