@@ -1,5 +1,7 @@
 // IndexedDB storage for user's floss collections.
 
+import { SingleFloss, sortedFlosses } from "./Floss";
+
 // Populated the first time we open the database.
 let _db: IDBDatabase | null = null;
 
@@ -31,30 +33,39 @@ function openDb(): Promise<IDBDatabase> {
 // Database-stored version of a Collection.
 interface CollectionRecord {
   name: string;
-  flossNames: Set<string>;
+  flossNames: string[];
 }
 
 // A user's floss collection.
 export class Collection {
   readonly name: string;
-  readonly flossNames: Set<string>;
+  flosses: SingleFloss[];
   // Non-clonable value to block accidentally storing this object directly in the database.
   private readonly _cloneBlocker: Symbol;
 
-  constructor(name: string, flossNames: Set<string>) {
+  constructor(name: string, flosses: SingleFloss[]) {
     this.name = name;
-    this.flossNames = flossNames;
+    this.flosses = flosses;
     this._cloneBlocker = Symbol();
   }
 
   // Serialize to database record.
   private toRecord(): CollectionRecord {
-    return { name: this.name, flossNames: this.flossNames };
+    return { name: this.name, flossNames: this.flosses.map((f) => f.name) };
   }
 
-  // Deserialize from database record.
+  // Deserialize from database record./cwl1
   private static fromRecord(record: CollectionRecord): Collection {
-    return new Collection(record.name, record.flossNames);
+    let flosses: SingleFloss[] = [];
+    for (const name of record.flossNames) {
+      const floss = SingleFloss.fromName(name);
+      if (floss) {
+        flosses.push(floss);
+      } else {
+        throw new Error(`Unknown floss: ${name}`);
+      }
+    }
+    return new Collection(record.name, flosses);
   }
 
   // Retrieve all collections from the database.
@@ -77,7 +88,7 @@ export class Collection {
     if (!name) {
       throw new Error("Name cannot be empty");
     }
-    const collection = new Collection(name, new Set());
+    const collection = new Collection(name, []);
     const db = await openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
@@ -88,6 +99,7 @@ export class Collection {
     });
   }
 
+  // Get a Collection from the database by name.
   static async get(name: string): Promise<Collection> {
     const db = await openDb();
     const tx = db.transaction("collections", "readonly");
@@ -107,7 +119,7 @@ export class Collection {
       throw new Error("New name cannot be empty");
     }
     const db = await openDb();
-    const newCollection = new Collection(newName, this.flossNames);
+    const newCollection = new Collection(newName, this.flosses);
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
@@ -118,33 +130,16 @@ export class Collection {
     });
   }
 
-  async addFloss(flossName: string): Promise<Collection> {
-    const newCollection = new Collection(
-      this.name,
-      new Set([...this.flossNames, flossName]),
-    );
+  // Save collection to the database.
+  async save(): Promise<void> {
+    this.flosses = sortedFlosses(this.flosses);
     const db = await openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
-      const request = store.put(newCollection.toRecord());
+      const request = store.put(this.toRecord());
       request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(newCollection);
-    });
-  }
-
-  async removeFloss(flossName: string): Promise<Collection> {
-    const newCollection = new Collection(
-      this.name,
-      new Set(Array.from(this.flossNames).filter((name) => name !== flossName)),
-    );
-    const db = await openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction("collections", "readwrite");
-      const store = tx.objectStore("collections");
-      const request = store.put(newCollection.toRecord());
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(newCollection);
+      request.onsuccess = () => resolve();
     });
   }
 

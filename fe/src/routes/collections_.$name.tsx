@@ -12,24 +12,21 @@ export const Route = createFileRoute("/collections_/$name")({
 
 function FlossTag({
   collection,
-  flossName,
+  floss,
 }: {
   collection: Collection;
-  flossName: string;
+  floss: SingleFloss;
 }) {
-  const floss = SingleFloss.fromName(flossName);
-  if (!floss) {
-    return <span className="tag">?</span>;
-  }
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      console.log("delete?");
-      await collection.removeFloss(flossName);
+      collection.flosses = collection.flosses.filter(
+        (f) => f.name !== floss.name,
+      );
+      await collection.save();
       queryClient.invalidateQueries({
         queryKey: ["collections", collection.name],
       });
-      console.log("delete: ", flossName);
     },
   });
   return (
@@ -48,18 +45,19 @@ function FlossTag({
 function FlossAdder({ collection }: { collection: Collection }) {
   const queryClient = useQueryClient();
   const addMutation = useMutation({
-    mutationFn: async (flossName: string) => {
+    mutationFn: async (floss: SingleFloss) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await collection.addFloss(flossName);
+      collection.flosses.push(floss);
+      await collection.save();
       queryClient.invalidateQueries({
         queryKey: ["collections", collection.name],
       });
-      console.log("add: ", flossName);
     },
   });
   const [filterText, setFilterText] = useState("");
+  const flossNames = new Set(collection.flosses.map((f) => f.name));
   const choices = SingleFloss.all().filter(
-    (f) => !collection.flossNames.has(f.name) && f.matchesFilter(filterText),
+    (f) => !flossNames.has(f.name) && f.matchesFilter(filterText),
   );
   return (
     <>
@@ -81,10 +79,7 @@ function FlossAdder({ collection }: { collection: Collection }) {
               <span className="tag" style={f.cssStyle}>
                 {f.name}
               </span>
-              <button
-                className="tag"
-                onClick={() => addMutation.mutate(f.name)}
-              >
+              <button className="tag" onClick={() => addMutation.mutate(f)}>
                 <Symbol name="add" />
               </button>
             </div>
@@ -121,16 +116,17 @@ function CollectionPage() {
         Collection: <em>{collection.name}</em>
       </p>
       <div className="block">
-        <p className="title is-5">Current flosses</p>
+        <p className="title is-5">Flosses in collection</p>
         <Field className="is-grouped is-grouped-multiline">
-          {[...collection.flossNames].map((flossName: string) => (
-            <Control key={flossName}>
-              <FlossTag collection={collection} flossName={flossName} />
+          {[...collection.flosses].map((f: SingleFloss) => (
+            <Control key={f.name}>
+              <FlossTag collection={collection} floss={f} />
             </Control>
           ))}
         </Field>
       </div>
-      <div className="block">
+      <div className="box block">
+        <p className="title is-5">Add new flosses to collection</p>
         <FlossAdder collection={collection} />
       </div>
     </>

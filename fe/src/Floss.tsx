@@ -91,6 +91,11 @@ export class Blend {
 
 export type Floss = SingleFloss | Blend;
 
+// Sort flosses by name.
+export function sortedFlosses(flosses: SingleFloss[]): SingleFloss[] {
+  return flosses.toSorted(compareNames);
+}
+
 function compareNames(a: Floss, b: Floss): number {
   const normalizeName = (name: string): string => {
     if (isNaN(Number(name))) {
@@ -114,9 +119,7 @@ function loadFlosses(): SingleFloss[] {
       }),
     );
   }
-
-  entries.sort(compareNames);
-  return entries;
+  return sortedFlosses(entries);
 }
 
 function textColor(color: Color): string {
