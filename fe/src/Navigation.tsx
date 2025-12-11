@@ -1,5 +1,6 @@
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import { Link } from "react-router";
+import { Symbol } from "./Symbol";
 
 function Item({
   className,
@@ -8,6 +9,36 @@ function Item({
 }: { className?: string; to: string } & ComponentProps<"a">) {
   return (
     <Link to={to} className={"navbar-item " + (className || "")} {...rest} />
+  );
+}
+
+// Persistent light/dark mode toggle.
+function ThemeToggle() {
+  // Read theme from LocalStorage, defaulting to system preference if not found.
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") ??
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"),
+  );
+
+  // Update data-theme on top-level element and update LocalStorage.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  return (
+    <a
+      className="navbar-item"
+      href="#"
+      onClick={() => setTheme(theme == "dark" ? "light" : "dark")}
+      title="Toggle light/dark mode."
+    >
+      <span className="icon">
+        <Symbol name={theme == "dark" ? "light_mode" : "dark_mode"} />
+      </span>
+    </a>
   );
 }
 
@@ -33,7 +64,9 @@ export default function Navigation() {
         </a>
       </div>
       <div className={"navbar-menu" + (menuActive ? "is-active" : "")}>
-        <div className="navbar-start"></div>
+        <div className="navbar-start">
+          <ThemeToggle />
+        </div>
         <div className="navbar-end">
           <Item to="/collections">My Collections</Item>
           <Item to="/nearest">Find Nearest Colors</Item>
