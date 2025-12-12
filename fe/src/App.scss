@@ -7,3 +7,9 @@
     vertical-align: middle;
   }
 }
+
+/* The amount of buttons on this page adds a noticable lag if transitions are
+enabled when manipulating flosses. */
+.collection-page button {
+  transition: none;
+}
