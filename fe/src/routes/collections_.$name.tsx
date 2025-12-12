@@ -33,25 +33,22 @@ function CollectionPage() {
   }
 
   return (
-    <div className="collection-page">
-      <p className="title is-4">
+    <>
+      <p className="title is-4 has-text-centered">
         Collection: <em>{collection.name}</em>
       </p>
-      <div className="block">
-        <p className="title is-5">Flosses in collection</p>
-        <Field className="is-grouped is-grouped-multiline">
-          {[...collection.flosses].map((f: SingleFloss) => (
-            <Control key={f.name}>
-              <FlossTagWithDelete collection={collection} floss={f} />
-            </Control>
-          ))}
-        </Field>
+
+      <div className="collection-page columns">
+        <div className="column">
+          <p className="title is-5">Flosses currently in collection</p>
+          <FlossDeleter collection={collection} />
+        </div>
+        <div className="column box">
+          <p className="title is-5">Add new flosses to collection</p>
+          <FlossAdder collection={collection} />
+        </div>
       </div>
-      <div className="box block">
-        <p className="title is-5">Add new flosses to collection</p>
-        <FlossAdder collection={collection} />
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -135,6 +132,19 @@ function FlossTagWithAdd({
       buttonAction={addMutation.mutate}
       isPending={addMutation.isPending}
     />
+  );
+}
+
+// Component for showing and deleting flosses from a collection.
+function FlossDeleter({ collection }: { collection: Collection }) {
+  return (
+    <Field className="is-grouped is-grouped-multiline">
+      {[...collection.flosses].map((f: SingleFloss) => (
+        <Control key={f.name}>
+          <FlossTagWithDelete collection={collection} floss={f} />
+        </Control>
+      ))}
+    </Field>
   );
 }
 
