@@ -1,3 +1,5 @@
+// Page for viewing and editing one single collection
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Collection } from "../Collection";
@@ -9,85 +11,6 @@ import { Symbol } from "../Symbol";
 export const Route = createFileRoute("/collections_/$name")({
   component: CollectionPage,
 });
-
-function FlossTag({
-  collection,
-  floss,
-}: {
-  collection: Collection;
-  floss: SingleFloss;
-}) {
-  const queryClient = useQueryClient();
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      collection.flosses = collection.flosses.filter(
-        (f) => f.name !== floss.name,
-      );
-      await collection.save();
-      queryClient.invalidateQueries({
-        queryKey: ["collections", collection.name],
-      });
-    },
-  });
-  return (
-    <div className="tags has-addons are-large">
-      <span className="tag" style={floss.cssStyle}>
-        {floss.name}
-      </span>
-      <button
-        className="tag is-delete"
-        onClick={() => deleteMutation.mutate()}
-      />
-    </div>
-  );
-}
-
-function FlossAdder({ collection }: { collection: Collection }) {
-  const queryClient = useQueryClient();
-  const addMutation = useMutation({
-    mutationFn: async (floss: SingleFloss) => {
-      collection.flosses.push(floss);
-      await collection.save();
-      queryClient.invalidateQueries({
-        queryKey: ["collections", collection.name],
-      });
-    },
-  });
-  const [filterText, setFilterText] = useState("");
-  const flossNames = new Set(collection.flosses.map((f) => f.name));
-  const choices = SingleFloss.all().filter(
-    (f) => !flossNames.has(f.name) && f.matchesFilter(filterText),
-  );
-  return (
-    <>
-      <Field>
-        <Label>Search</Label>
-        <Control>
-          <input
-            className="input"
-            type="text"
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-          />
-        </Control>
-      </Field>
-      <Field className="is-grouped is-grouped-multiline">
-        {choices.map((f) => (
-          <Control key={f.name}>
-            <div className="tags has-addons are-large">
-              <span className="tag" style={f.cssStyle}>
-                {f.name}
-              </span>
-              <button className="tag" onClick={() => addMutation.mutate(f)}>
-                <Symbol name="add" />
-              </button>
-            </div>
-          </Control>
-        ))}
-      </Field>
-    </>
-  );
-}
 
 function CollectionPage() {
   const { name } = Route.useParams();
@@ -110,7 +33,7 @@ function CollectionPage() {
   }
 
   return (
-    <>
+    <div className="collection-page">
       <p className="title is-4">
         Collection: <em>{collection.name}</em>
       </p>
@@ -119,7 +42,7 @@ function CollectionPage() {
         <Field className="is-grouped is-grouped-multiline">
           {[...collection.flosses].map((f: SingleFloss) => (
             <Control key={f.name}>
-              <FlossTag collection={collection} floss={f} />
+              <FlossTagWithDelete collection={collection} floss={f} />
             </Control>
           ))}
         </Field>
@@ -128,6 +51,124 @@ function CollectionPage() {
         <p className="title is-5">Add new flosses to collection</p>
         <FlossAdder collection={collection} />
       </div>
+    </div>
+  );
+}
+
+// Render a Bulma tag for a floss, with an addon button.
+function FlossTagWithButton({
+  floss,
+  isPending,
+  buttonSymbol,
+  buttonAction,
+}: {
+  floss: SingleFloss;
+  isPending: boolean;
+  buttonSymbol: string;
+  buttonAction: () => void;
+}) {
+  return (
+    <div className="tags has-addons are-medium">
+      <span className="tag" style={floss.cssStyle} title={floss.description}>
+        {floss.name}
+      </span>
+      <button
+        className={`button tag ${isPending ? "is-loading" : ""}`}
+        onClick={buttonAction}
+        disabled={isPending}
+      >
+        <span className="icon">
+          <Symbol name={buttonSymbol} />
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function FlossTagWithDelete({
+  collection,
+  floss,
+}: {
+  collection: Collection;
+  floss: SingleFloss;
+}) {
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      collection.flosses = collection.flosses.filter(
+        (f) => f.name !== floss.name,
+      );
+      await collection.save();
+      queryClient.invalidateQueries({
+        queryKey: ["collections", collection.name],
+      });
+    },
+  });
+  return (
+    <FlossTagWithButton
+      floss={floss}
+      buttonSymbol="delete"
+      buttonAction={deleteMutation.mutate}
+      isPending={deleteMutation.isPending}
+    />
+  );
+}
+
+function FlossTagWithAdd({
+  collection,
+  floss,
+}: {
+  collection: Collection;
+  floss: SingleFloss;
+}) {
+  const queryClient = useQueryClient();
+  const addMutation = useMutation({
+    mutationFn: async () => {
+      collection.flosses.push(floss);
+      await collection.save();
+      queryClient.invalidateQueries({
+        queryKey: ["collections", collection.name],
+      });
+    },
+  });
+
+  return (
+    <FlossTagWithButton
+      floss={floss}
+      buttonSymbol="add"
+      buttonAction={addMutation.mutate}
+      isPending={addMutation.isPending}
+    />
+  );
+}
+
+// Component for adding floss to a collection.
+function FlossAdder({ collection }: { collection: Collection }) {
+  const [filterText, setFilterText] = useState("");
+  const flossNames = new Set(collection.flosses.map((f) => f.name));
+  const choices = SingleFloss.all().filter(
+    (f) => !flossNames.has(f.name) && f.matchesFilter(filterText),
+  );
+  return (
+    <>
+      <Field>
+        <Label>Search</Label>
+        <Control>
+          <input
+            className="input"
+            type="text"
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
+        </Control>
+      </Field>
+      <Field className="is-grouped is-grouped-multiline">
+        {choices.map((f) => (
+          <Control key={f.name}>
+            <FlossTagWithAdd collection={collection} floss={f} />
+          </Control>
+        ))}
+      </Field>
     </>
   );
 }
