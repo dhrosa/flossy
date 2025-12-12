@@ -46,7 +46,6 @@ function FlossAdder({ collection }: { collection: Collection }) {
   const queryClient = useQueryClient();
   const addMutation = useMutation({
     mutationFn: async (floss: SingleFloss) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       collection.flosses.push(floss);
       await collection.save();
       queryClient.invalidateQueries({
