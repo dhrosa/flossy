@@ -39,7 +39,7 @@ interface CollectionRecord {
 // A user's floss collection.
 export class Collection {
   readonly name: string;
-  flosses: SingleFloss[];
+  readonly flosses: SingleFloss[];
   // Non-clonable value to block accidentally storing this object directly in the database.
   private readonly _cloneBlocker: Symbol;
 
@@ -47,6 +47,11 @@ export class Collection {
     this.name = name;
     this.flosses = flosses;
     this._cloneBlocker = Symbol();
+  }
+
+  // New collection with the given flosses.
+  withFlosses(flosses: SingleFloss[]): Collection {
+    return new Collection(this.name, sortedFlosses(flosses));
   }
 
   // Serialize to database record.
@@ -131,15 +136,14 @@ export class Collection {
   }
 
   // Save collection to the database.
-  async save(): Promise<void> {
-    this.flosses = sortedFlosses(this.flosses);
+  async save(): Promise<Collection> {
     const db = await openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction("collections", "readwrite");
       const store = tx.objectStore("collections");
       const request = store.put(this.toRecord());
       request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
+      request.onsuccess = () => resolve(this);
     });
   }
 

@@ -95,13 +95,10 @@ function FlossTagWithDelete({
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      collection.flosses = collection.flosses.filter(
-        (f) => f.name !== floss.name,
-      );
-      await collection.save();
-      queryClient.invalidateQueries({
-        queryKey: ["collections", collection.name],
-      });
+      const newCollection = await collection
+        .withFlosses(collection.flosses.filter((f) => f.name !== floss.name))
+        .save();
+      queryClient.setQueryData(["collections", collection.name], newCollection);
     },
   });
   return (
@@ -124,11 +121,10 @@ function FlossTagWithAdd({
   const queryClient = useQueryClient();
   const addMutation = useMutation({
     mutationFn: async () => {
-      collection.flosses.push(floss);
-      await collection.save();
-      queryClient.invalidateQueries({
-        queryKey: ["collections", collection.name],
-      });
+      const newCollection = await collection
+        .withFlosses(collection.flosses.concat(floss))
+        .save();
+      queryClient.setQueryData(["collections", collection.name], newCollection);
     },
   });
 
