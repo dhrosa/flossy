@@ -112,7 +112,11 @@ async function findNeighbors({
   collection,
   maxThreadCount,
   resultLimit,
+  validationError,
 }: State): Promise<NeighborSet[]> {
+  if (validationError) {
+    throw new Error(validationError);
+  }
   const allowedFlossNames = collection?.flosses.map((f) => f.name);
   const response: NeighborResponse = await new Promise((resolve) => {
     const request: NeighborRequest = {
@@ -238,13 +242,7 @@ function NearestColorsPage() {
     validationError: null,
   });
 
-  const {
-    targetFloss,
-    collection,
-    maxThreadCount,
-    resultLimit,
-    validationError,
-  } = state;
+  const { targetFloss, collection, maxThreadCount, resultLimit } = state;
 
   const {
     error,
@@ -311,13 +309,11 @@ function NearestColorsPage() {
             />
           </Control>
         </Field>
-        {validationError && <ErrorHelp>{validationError}</ErrorHelp>}
       </div>
       <div>
         {error && <ErrorHelp>Error: {error.toString()}</ErrorHelp>}
         {isPending && <progress className="progress" />}
-        {!validationError &&
-          neighborSets &&
+        {neighborSets &&
           neighborSets.map((set) => (
             <NeighborSetComponent key={set.maxThreadCount} neighborSet={set} />
           ))}
