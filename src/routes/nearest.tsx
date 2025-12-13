@@ -71,8 +71,16 @@ async function findNeighbors(
   }));
 }
 
+// Random initial value for target floss.
+function randomFloss(): SingleFloss {
+  const singles = SingleFloss.all();
+  const index = Math.floor(Math.random() * (singles.length - 1));
+  return singles[index];
+}
+
 function NearestColorsPage() {
-  const [targetFloss, setTargetFloss] = useState<SingleFloss | null>(null);
+  const singles = SingleFloss.all();
+  const [targetFloss, setTargetFloss] = useState<SingleFloss>(randomFloss());
   const [resultLimit, setResultLimit] = useState(8);
   const {
     error,
@@ -80,19 +88,14 @@ function NearestColorsPage() {
     data: nearest,
   } = useQuery({
     queryKey: ["neighbors", targetFloss, resultLimit],
-    queryFn: async () => {
-      if (!targetFloss) {
-        return [];
-      }
-      return await findNeighbors(targetFloss, resultLimit);
-    },
+    queryFn: () => findNeighbors(targetFloss, resultLimit),
   });
   return (
     <>
       <p className="title is-4">Nearest Color Finder</p>
       <div className="box">
         <Field>
-          <Label>Target Floss</Label>
+          <Label>Choose target floss</Label>
           <Control>
             <Picker
               flosses={SingleFloss.all()}
