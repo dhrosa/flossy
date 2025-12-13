@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FlossButton } from "../FlossButton";
 import { Field, Label, Control, ErrorHelp } from "../Form";
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   NeighborRecord,
   NeighborRequest,
@@ -11,6 +12,7 @@ import {
   NeighborSetRecord,
 } from "../NeighborTypes";
 import { useQuery } from "@tanstack/react-query";
+import { Collection } from "../Collection";
 
 export const Route = createFileRoute("/nearest")({
   component: NearestColorsPage,
@@ -74,12 +76,15 @@ function neighborSetFromRecord({
 // Issue request to background worker to find neighbors.
 async function findNeighbors(
   targetFloss: SingleFloss,
+  collection: Collection | null,
   resultLimit: number,
 ): Promise<NeighborSet[]> {
+  const allowedFlossNames = collection?.flosses.map((f) => f.name);
   const response: NeighborResponse = await new Promise((resolve) => {
     const request: NeighborRequest = {
       id: nextRequestId++,
       targetFlossName: targetFloss.name,
+      allowedFlossNames,
       resultLimit,
     };
 
@@ -91,6 +96,48 @@ async function findNeighbors(
     worker.postMessage(request);
   });
   return response.neighborSets.map(neighborSetFromRecord);
+}
+
+// Component for picking a user's floss collection.
+function CollectionPicker({
+  value,
+  onChange,
+}: {
+  value: Collection | null;
+  onChange: (value: Collection | null) => void;
+}) {
+  const {
+    error,
+    isPending,
+    data: collections,
+  } = useQuery({
+    queryKey: ["collections"],
+    queryFn: Collection.all,
+  });
+  if (error) {
+    return <ErrorHelp>Error loading collections: {error.toString()}</ErrorHelp>;
+  }
+
+  return (
+    <div className="buttons">
+      <button
+        className={`button ${value ? "" : "is-primary"} ${isPending ? "is-loading" : ""}`}
+        onClick={() => onChange(null)}
+      >
+        All DMC flosses
+      </button>
+      {collections &&
+        collections.map((c) => (
+          <button
+            key={c.name}
+            className={`button ${value?.name === c.name ? "is-primary" : ""}`}
+            onClick={() => onChange(c)}
+          >
+            {c.name}
+          </button>
+        ))}
+    </div>
+  );
 }
 
 // Renders a single Neighbor.
@@ -124,24 +171,22 @@ function NeighborSetComponent({ neighborSet }: { neighborSet: NeighborSet }) {
   );
 }
 
-// Random initial value for target floss.
-function randomFloss(): SingleFloss {
-  const singles = SingleFloss.all();
-  const index = Math.floor(Math.random() * (singles.length - 1));
-  return singles[index];
-}
-
 function NearestColorsPage() {
-  const [targetFloss, setTargetFloss] = useState<SingleFloss>(randomFloss());
+  const [targetFloss, setTargetFloss] = useState<SingleFloss>(
+    SingleFloss.random(),
+  );
+  const [collection, setCollection] = useState<Collection | null>(null);
   const [resultLimit, setResultLimit] = useState(12);
+
   const {
     error,
     isPending,
     data: neighborSets,
   } = useQuery({
-    queryKey: ["neighbors", targetFloss, resultLimit],
-    queryFn: () => findNeighbors(targetFloss, resultLimit),
+    queryKey: ["neighbors", targetFloss, collection?.name, resultLimit],
+    queryFn: () => findNeighbors(targetFloss, collection, resultLimit),
   });
+
   return (
     <div className="container is-max-desktop">
       <p className="title is-4">Nearest Color Finder</p>
@@ -157,7 +202,16 @@ function NearestColorsPage() {
           </Control>
         </Field>
         <Field>
-          <Label>Number of Results</Label>
+          <Label>
+            Limit results to the following{" "}
+            <Link to="/collections">collections</Link>
+          </Label>
+          <Control>
+            <CollectionPicker value={collection} onChange={setCollection} />
+          </Control>
+        </Field>
+        <Field>
+          <Label>Number of results</Label>
           <Control>
             <input
               className="input"

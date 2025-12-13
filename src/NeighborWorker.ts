@@ -28,9 +28,12 @@ function toRecord({ floss, distance }: Neighbor): NeighborRecord {
 }
 
 // Find sorted list of neighbors.
-function findNeighbors(target: SingleFloss): Neighbor[] {
+function findNeighbors(
+  target: SingleFloss,
+  allowedFlosses: SingleFloss[],
+): Neighbor[] {
   const candidates: Floss[] = [];
-  const singles = SingleFloss.all();
+  const singles = allowedFlosses;
   for (let i = 0; i < singles.length; i++) {
     const a = singles[i];
     if (a.name == target.name) {
@@ -52,11 +55,13 @@ function findNeighbors(target: SingleFloss): Neighbor[] {
 }
 
 onmessage = (event: MessageEvent<NeighborRequest>) => {
-  const { id, targetFlossName, resultLimit } = event.data;
+  const { id, targetFlossName, allowedFlossNames, resultLimit } = event.data;
   console.log(`Finding neighbors for ${targetFlossName} (ID ${id})`);
 
   const target = SingleFloss.fromName(targetFlossName);
-  const neighbors = findNeighbors(target);
+  const allowedFlosses =
+    allowedFlossNames?.map(SingleFloss.fromName) ?? SingleFloss.all();
+  const neighbors = findNeighbors(target, allowedFlosses);
 
   const makeNeighborSet = (maxThreadCount: number): NeighborSetRecord => {
     return {

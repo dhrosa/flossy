@@ -47,6 +47,12 @@ export class SingleFloss {
     return floss;
   }
 
+  // A random floss.
+  static random(): SingleFloss {
+    const all = SingleFloss.all();
+    return all[Math.floor(Math.random() * all.length)];
+  }
+
   // Predicate for floss whose name or description matches the given string.
   matchesFilter(filter: string): boolean {
     filter = filter.toLowerCase();

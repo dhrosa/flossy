@@ -5,6 +5,7 @@ export interface NeighborRequest {
   id: number;
 
   targetFlossName: string;
+  allowedFlossNames?: string[];
   resultLimit: number;
 }
 
