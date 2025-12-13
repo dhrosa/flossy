@@ -17,6 +17,7 @@
     "@tanstack/react-router-devtools": "^1.140.5",
     "bulma": "^1.0.4",
     "colorjs.io": "^0.5.2",
+    "firebase-tools": "^15.0.0",
     "react": "19.1",
     "react-dom": "19.1"
   },
