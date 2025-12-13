@@ -4,7 +4,12 @@ import { useState } from "react";
 import { FlossButton } from "../FlossButton";
 import { Field, Label, Control, ErrorHelp } from "../Form";
 import { createFileRoute } from "@tanstack/react-router";
-import { NeighborRequest, NeighborResponse } from "../NeighborTypes";
+import {
+  NeighborRecord,
+  NeighborRequest,
+  NeighborResponse,
+  NeighborSetRecord,
+} from "../NeighborTypes";
 import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/nearest")({
@@ -41,16 +46,36 @@ interface Neighbor {
   distance: number;
 }
 
-// Convert list of floss names to a Floss.
-function fromFlossNames(flossNames: string[]): Floss {
-  return new Blend(flossNames.map(SingleFloss.fromName));
+interface NeighborSet {
+  maxThreadCount: number;
+  neighbors: Neighbor[];
+}
+
+function neighborFromRecord({
+  flossNames,
+  distance,
+}: NeighborRecord): Neighbor {
+  return {
+    floss: new Blend(flossNames.map(SingleFloss.fromName)),
+    distance,
+  };
+}
+
+function neighborSetFromRecord({
+  maxThreadCount,
+  neighbors,
+}: NeighborSetRecord): NeighborSet {
+  return {
+    maxThreadCount,
+    neighbors: neighbors.map(neighborFromRecord),
+  };
 }
 
 // Issue request to background worker to find neighbors.
 async function findNeighbors(
   targetFloss: SingleFloss,
   resultLimit: number,
-): Promise<Neighbor[]> {
+): Promise<NeighborSet[]> {
   const response: NeighborResponse = await new Promise((resolve) => {
     const request: NeighborRequest = {
       id: nextRequestId++,
@@ -65,10 +90,38 @@ async function findNeighbors(
     responseListeners.set(request.id, listener);
     worker.postMessage(request);
   });
-  return response.neighbors.map((record) => ({
-    floss: fromFlossNames(record.flossNames),
-    distance: record.distance,
-  }));
+  return response.neighborSets.map(neighborSetFromRecord);
+}
+
+// Renders a single Neighbor.
+function NeighborComponent({ neighbor }: { neighbor: Neighbor }) {
+  const { floss, distance } = neighbor;
+  return (
+    <FlossButton
+      key={floss.name}
+      floss={floss}
+      title={`distance: ${distance}`}
+    />
+  );
+}
+
+// Renders a single NeighborSet.
+function NeighborSetComponent({ neighborSet }: { neighborSet: NeighborSet }) {
+  const { maxThreadCount, neighbors } = neighborSet;
+  return (
+    <div className="block">
+      <p className="title is-6">
+        {maxThreadCount == 1
+          ? "Closest single flosses"
+          : `Closest blends of up to ${maxThreadCount} flosses`}
+      </p>
+      <div className="grid">
+        {neighbors.map((n) => (
+          <NeighborComponent key={n.floss.name} neighbor={n} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // Random initial value for target floss.
@@ -79,19 +132,18 @@ function randomFloss(): SingleFloss {
 }
 
 function NearestColorsPage() {
-  const singles = SingleFloss.all();
   const [targetFloss, setTargetFloss] = useState<SingleFloss>(randomFloss());
-  const [resultLimit, setResultLimit] = useState(8);
+  const [resultLimit, setResultLimit] = useState(12);
   const {
     error,
     isPending,
-    data: nearest,
+    data: neighborSets,
   } = useQuery({
     queryKey: ["neighbors", targetFloss, resultLimit],
     queryFn: () => findNeighbors(targetFloss, resultLimit),
   });
   return (
-    <>
+    <div className="container is-max-desktop">
       <p className="title is-4">Nearest Color Finder</p>
       <div className="box">
         <Field>
@@ -120,19 +172,14 @@ function NearestColorsPage() {
           </Control>
         </Field>
       </div>
-      <p className="title is-6">Results</p>
-      {error && <ErrorHelp>Error: {error.toString()}</ErrorHelp>}
-      {isPending && <progress className="progress" />}
-      <div className="block grid">
-        {nearest &&
-          nearest.map(({ floss, distance }) => (
-            <FlossButton
-              key={floss.name}
-              floss={floss}
-              title={`distance: ${distance}`}
-            />
+      <div>
+        {error && <ErrorHelp>Error: {error.toString()}</ErrorHelp>}
+        {isPending && <progress className="progress" />}
+        {neighborSets &&
+          neighborSets.map((set) => (
+            <NeighborSetComponent key={set.maxThreadCount} neighborSet={set} />
           ))}
       </div>
-    </>
+    </div>
   );
 }

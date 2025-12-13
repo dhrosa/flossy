@@ -14,7 +14,7 @@ function Root() {
           <Outlet />
         </div>
       </section>
-      <TanStackRouterDevtools />;
+      <TanStackRouterDevtools />
       <ReactQueryDevtools />
     </>
   );

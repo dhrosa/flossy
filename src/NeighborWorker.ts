@@ -5,6 +5,7 @@ import {
   NeighborRequest,
   NeighborRecord,
   NeighborResponse,
+  NeighborSetRecord,
 } from "./NeighborTypes";
 
 // Type-safe postMessage().
@@ -32,9 +33,11 @@ function findNeighbors(target: SingleFloss): Neighbor[] {
   const singles = SingleFloss.all();
   for (let i = 0; i < singles.length; i++) {
     const a = singles[i];
-    if (a.name != target.name) {
-      candidates.push(a);
+    if (a.name == target.name) {
+      continue;
     }
+    candidates.push(a);
+
     for (let j = i + 1; j < singles.length; j++) {
       const b = singles[j];
       if (b.name != target.name) {
@@ -50,10 +53,23 @@ function findNeighbors(target: SingleFloss): Neighbor[] {
 
 onmessage = (event: MessageEvent<NeighborRequest>) => {
   const { id, targetFlossName, resultLimit } = event.data;
-  const target = SingleFloss.fromName(targetFlossName);
   console.log(`Finding neighbors for ${targetFlossName} (ID ${id})`);
+
+  const target = SingleFloss.fromName(targetFlossName);
+  const neighbors = findNeighbors(target);
+
+  const makeNeighborSet = (maxThreadCount: number): NeighborSetRecord => {
+    return {
+      maxThreadCount,
+      neighbors: neighbors
+        .map(toRecord)
+        .filter((n) => n.flossNames.length <= maxThreadCount)
+        .slice(0, resultLimit),
+    };
+  };
+
   respond({
     id,
-    neighbors: findNeighbors(target).slice(0, resultLimit).map(toRecord),
+    neighborSets: [makeNeighborSet(2), makeNeighborSet(1)],
   });
 };
