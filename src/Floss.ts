@@ -39,8 +39,12 @@ export class SingleFloss {
   }
 
   // Find floss with the given name.
-  static fromName(name: string): SingleFloss | undefined {
-    return this.all().find((f) => f.name === name);
+  static fromName(name: string): SingleFloss {
+    const floss = SingleFloss.all().find((f) => f.name === name);
+    if (!floss) {
+      throw new Error(`Unknown floss: ${name}`);
+    }
+    return floss;
   }
 
   // Predicate for floss whose name or description matches the given string.

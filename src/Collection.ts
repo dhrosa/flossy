@@ -61,16 +61,10 @@ export class Collection {
 
   // Deserialize from database record./cwl1
   private static fromRecord(record: CollectionRecord): Collection {
-    let flosses: SingleFloss[] = [];
-    for (const name of record.flossNames) {
-      const floss = SingleFloss.fromName(name);
-      if (floss) {
-        flosses.push(floss);
-      } else {
-        throw new Error(`Unknown floss: ${name}`);
-      }
-    }
-    return new Collection(record.name, flosses);
+    return new Collection(
+      record.name,
+      record.flossNames.map(SingleFloss.fromName),
+    );
   }
 
   // Retrieve all collections from the database.

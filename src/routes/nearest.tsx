@@ -2,47 +2,91 @@ import Picker from "../Picker";
 import { Floss, SingleFloss, Blend } from "../Floss";
 import { useState } from "react";
 import { FlossButton } from "../FlossButton";
-import { Field, Label, Control } from "../Form";
+import { Field, Label, Control, ErrorHelp } from "../Form";
 import { createFileRoute } from "@tanstack/react-router";
+import { NeighborRequest, NeighborResponse } from "../NeighborTypes";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/nearest")({
   component: NearestColorsPage,
 });
 
-function flossDistance(a: Floss, b: Floss): number {
-  return a.color.deltaE2000(b.color);
-}
+// CPU-bound worker for finding neighbors.
+const worker = new Worker(new URL("../NeighborWorker.ts", import.meta.url), {
+  type: "module",
+});
 
-function sortedByDistance(target: Floss, choices: Floss[]): Floss[] {
-  const compareDistance = (a: Floss, b: Floss) => {
-    return flossDistance(target, a) - flossDistance(target, b);
-  };
-  return choices.toSorted(compareDistance);
-}
+// Unique ID for each request.
+let nextRequestId = 0;
 
-function allBlends(flosses: SingleFloss[]): Blend[] {
-  const blends: Blend[] = [];
-  for (let i = 0; i < flosses.length; i++) {
-    for (let j = i + 1; j < flosses.length; j++) {
-      blends.push(new Blend([flosses[i], flosses[j]]));
-    }
+// Maps request IDs to their respective response listeners.
+const responseListeners = new Map<
+  number,
+  (response: NeighborResponse) => void
+>();
+
+// Demultiplex responses to their respective listeners.
+worker.onmessage = (event: MessageEvent<NeighborResponse>) => {
+  const response = event.data;
+  const listener = responseListeners.get(response.id);
+  if (!listener) {
+    console.error("Received response for unknown ID:", response.id);
+    return;
   }
-  return blends;
+  listener(response);
+};
+
+interface Neighbor {
+  floss: Floss;
+  distance: number;
 }
 
-export default function NearestColorsPage() {
-  const [currentFloss, setCurrentFloss] = useState<SingleFloss | null>(null);
+// Convert list of floss names to a Floss.
+function fromFlossNames(flossNames: string[]): Floss {
+  return new Blend(flossNames.map(SingleFloss.fromName));
+}
+
+// Issue request to background worker to find neighbors.
+async function findNeighbors(
+  targetFloss: SingleFloss,
+  resultLimit: number,
+): Promise<Neighbor[]> {
+  const response: NeighborResponse = await new Promise((resolve) => {
+    const request: NeighborRequest = {
+      id: nextRequestId++,
+      targetFlossName: targetFloss.name,
+      resultLimit,
+    };
+
+    const listener = (response: NeighborResponse) => {
+      responseListeners.delete(request.id);
+      resolve(response);
+    };
+    responseListeners.set(request.id, listener);
+    worker.postMessage(request);
+  });
+  return response.neighbors.map((record) => ({
+    floss: fromFlossNames(record.flossNames),
+    distance: record.distance,
+  }));
+}
+
+function NearestColorsPage() {
+  const [targetFloss, setTargetFloss] = useState<SingleFloss | null>(null);
   const [resultLimit, setResultLimit] = useState(8);
-
-  const singleFlosses = SingleFloss.all();
-  const blends = allBlends(singleFlosses);
-  const choices = (singleFlosses as Floss[]).concat(blends);
-
-  console.time("distances");
-  const nearest: Floss[] = currentFloss
-    ? sortedByDistance(currentFloss, choices).slice(1, resultLimit + 1)
-    : [];
-  console.timeEnd("distances");
+  const {
+    error,
+    isPending,
+    data: nearest,
+  } = useQuery({
+    queryKey: ["neighbors", targetFloss, resultLimit],
+    queryFn: async () => {
+      if (!targetFloss) {
+        return [];
+      }
+      return await findNeighbors(targetFloss, resultLimit);
+    },
+  });
   return (
     <>
       <p className="title is-4">Nearest Color Finder</p>
@@ -51,9 +95,9 @@ export default function NearestColorsPage() {
           <Label>Target Floss</Label>
           <Control>
             <Picker
-              flosses={singleFlosses}
-              currentFloss={currentFloss}
-              onPick={setCurrentFloss}
+              flosses={SingleFloss.all()}
+              currentFloss={targetFloss}
+              onPick={setTargetFloss}
             />
           </Control>
         </Field>
@@ -74,13 +118,15 @@ export default function NearestColorsPage() {
         </Field>
       </div>
       <p className="title is-6">Results</p>
+      {error && <ErrorHelp>Error: {error.toString()}</ErrorHelp>}
+      {isPending && <progress className="progress" />}
       <div className="block grid">
-        {currentFloss &&
-          nearest.map((f) => (
+        {nearest &&
+          nearest.map(({ floss, distance }) => (
             <FlossButton
-              floss={f}
-              key={f.name}
-              title={`deltaE: ${flossDistance(currentFloss, f)}`}
+              key={floss.name}
+              floss={floss}
+              title={`distance: ${distance}`}
             />
           ))}
       </div>
