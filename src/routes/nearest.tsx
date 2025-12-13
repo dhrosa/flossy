@@ -1,6 +1,6 @@
 import Picker from "../Picker";
 import { Floss, SingleFloss, Blend } from "../Floss";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { FlossButton } from "../FlossButton";
 import { Field, Label, Control, ErrorHelp } from "../Form";
 import { createFileRoute } from "@tanstack/react-router";
@@ -73,19 +73,53 @@ function neighborSetFromRecord({
   };
 }
 
+// All user-controlled options bundled together to allow for validation.
+interface State {
+  targetFloss: SingleFloss;
+  // Collection to restrict search space to.
+  collection: Collection | null;
+  // Maximum number of threads in each candidate blend.
+  maxThreadCount: number;
+  // Number of results per neighbor set.
+  resultLimit: number;
+  // Message indicating why a state update could not be applied.
+  validationError: string | null;
+}
+
+function stateReducer(
+  oldState: State,
+  updates: Omit<Partial<State>, "validationError">,
+): State {
+  const newState = { ...oldState, ...updates };
+  const flossCount =
+    newState.collection?.flosses.length ?? SingleFloss.all().length;
+  const candidateCount = flossCount ** newState.maxThreadCount;
+  const maxCandidateCount = 2e6;
+  if (candidateCount > maxCandidateCount) {
+    return {
+      ...oldState,
+      validationError: `${candidateCount.toLocaleString()} combinations to search through \
+      is greater than limit of ${maxCandidateCount.toLocaleString()}. \
+      Either choose a smaller collection or reduce the thread count.`,
+    };
+  }
+  return { ...newState, validationError: null };
+}
+
 // Issue request to background worker to find neighbors.
-async function findNeighbors(
-  targetFloss: SingleFloss,
-  collection: Collection | null,
-  resultLimit: number,
-): Promise<NeighborSet[]> {
+async function findNeighbors({
+  targetFloss,
+  collection,
+  maxThreadCount,
+  resultLimit,
+}: State): Promise<NeighborSet[]> {
   const allowedFlossNames = collection?.flosses.map((f) => f.name);
   const response: NeighborResponse = await new Promise((resolve) => {
     const request: NeighborRequest = {
       id: nextRequestId++,
       targetFlossName: targetFloss.name,
       allowedFlossNames,
-      maxThreadCount: 2,
+      maxThreadCount,
       resultLimit,
     };
 
@@ -134,9 +168,32 @@ function CollectionPicker({
             className={`button ${value?.name === c.name ? "is-primary" : ""}`}
             onClick={() => onChange(c)}
           >
-            {c.name}
+            {c.name} ({c.flosses.length} flosses)
           </button>
         ))}
+    </div>
+  );
+}
+
+function MaxThreadCountPicker({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  const options = [1, 2, 3, 4];
+  return (
+    <div className="buttons">
+      {options.map((n) => (
+        <button
+          key={n}
+          className={`button ${value === n ? "is-primary" : ""}`}
+          onClick={() => onChange(n)}
+        >
+          {n}
+        </button>
+      ))}
     </div>
   );
 }
@@ -161,7 +218,7 @@ function NeighborSetComponent({ neighborSet }: { neighborSet: NeighborSet }) {
       <p className="title is-6">
         {maxThreadCount == 1
           ? "Closest single flosses"
-          : `Closest blends of up to ${maxThreadCount} flosses`}
+          : `Closest ${maxThreadCount}-color floss blends`}
       </p>
       <div className="grid">
         {neighbors.map((n) => (
@@ -173,18 +230,35 @@ function NeighborSetComponent({ neighborSet }: { neighborSet: NeighborSet }) {
 }
 
 function NearestColorsPage() {
-  const [targetFloss, setTargetFloss] = useState<SingleFloss>(
-    SingleFloss.random(),
-  );
-  const [collection, setCollection] = useState<Collection | null>(null);
-  const [resultLimit, setResultLimit] = useState(12);
+  const [state, updateState] = useReducer(stateReducer, {
+    targetFloss: SingleFloss.random(),
+    collection: null,
+    maxThreadCount: 2,
+    resultLimit: 12,
+    validationError: null,
+  });
+
+  const {
+    targetFloss,
+    collection,
+    maxThreadCount,
+    resultLimit,
+    validationError,
+  } = state;
+
   const {
     error,
     isPending,
     data: neighborSets,
   } = useQuery({
-    queryKey: ["neighbors", targetFloss, collection?.name, resultLimit],
-    queryFn: () => findNeighbors(targetFloss, collection, resultLimit),
+    queryKey: [
+      "neighbors",
+      targetFloss,
+      collection?.name,
+      maxThreadCount,
+      resultLimit,
+    ],
+    queryFn: () => findNeighbors(state),
   });
 
   return (
@@ -197,7 +271,7 @@ function NearestColorsPage() {
             <Picker
               flosses={SingleFloss.all()}
               currentFloss={targetFloss}
-              onPick={setTargetFloss}
+              onPick={(targetFloss) => updateState({ targetFloss })}
             />
           </Control>
         </Field>
@@ -207,7 +281,19 @@ function NearestColorsPage() {
             <Link to="/collections">collections</Link>
           </Label>
           <Control>
-            <CollectionPicker value={collection} onChange={setCollection} />
+            <CollectionPicker
+              value={collection}
+              onChange={(collection) => updateState({ collection })}
+            />
+          </Control>
+        </Field>
+        <Field>
+          <Label>Number of flosses to blend</Label>
+          <Control>
+            <MaxThreadCountPicker
+              value={maxThreadCount}
+              onChange={(maxThreadCount) => updateState({ maxThreadCount })}
+            />
           </Control>
         </Field>
         <Field>
@@ -219,17 +305,19 @@ function NearestColorsPage() {
               min="2"
               max="100"
               value={resultLimit}
-              onChange={(e) => {
-                setResultLimit(Number(e.target.value));
-              }}
+              onChange={(e) =>
+                updateState({ resultLimit: Number(e.target.value) })
+              }
             />
           </Control>
         </Field>
+        {validationError && <ErrorHelp>{validationError}</ErrorHelp>}
       </div>
       <div>
         {error && <ErrorHelp>Error: {error.toString()}</ErrorHelp>}
         {isPending && <progress className="progress" />}
-        {neighborSets &&
+        {!validationError &&
+          neighborSets &&
           neighborSets.map((set) => (
             <NeighborSetComponent key={set.maxThreadCount} neighborSet={set} />
           ))}

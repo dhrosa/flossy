@@ -65,7 +65,7 @@ function handleRequest({
       maxThreadCount: count,
       neighbors: neighbors
         .map(toRecord)
-        .filter((n) => n.flossNames.length <= count)
+        .filter((n) => n.flossNames.length == count)
         .slice(0, resultLimit),
     });
   }
