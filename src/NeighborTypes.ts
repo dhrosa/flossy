@@ -6,6 +6,7 @@ export interface NeighborRequest {
 
   targetFlossName: string;
   allowedFlossNames?: string[];
+  maxThreadCount: number;
   resultLimit: number;
 }
 

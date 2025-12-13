@@ -85,6 +85,7 @@ async function findNeighbors(
       id: nextRequestId++,
       targetFlossName: targetFloss.name,
       allowedFlossNames,
+      maxThreadCount: 2,
       resultLimit,
     };
 
@@ -177,7 +178,6 @@ function NearestColorsPage() {
   );
   const [collection, setCollection] = useState<Collection | null>(null);
   const [resultLimit, setResultLimit] = useState(12);
-
   const {
     error,
     isPending,

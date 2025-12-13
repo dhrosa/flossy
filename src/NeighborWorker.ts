@@ -7,11 +7,7 @@ import {
   NeighborResponse,
   NeighborSetRecord,
 } from "./NeighborTypes";
-
-// Type-safe postMessage().
-function respond(response: NeighborResponse) {
-  postMessage(response);
-}
+import { BaseN } from "js-combinatorics";
 
 // Neighbor of target floss.
 interface Neighbor {
@@ -27,54 +23,58 @@ function toRecord({ floss, distance }: Neighbor): NeighborRecord {
   return { flossNames: floss.flosses.map((f) => f.name), distance };
 }
 
+// All combinations of 1...N flosses.
+function* allCandidates(allowedFlosses: SingleFloss[], maxThreadCount: number) {
+  for (let threadCount = 1; threadCount <= maxThreadCount; threadCount++) {
+    for (const combination of new BaseN(allowedFlosses, threadCount)) {
+      yield new Blend(combination);
+    }
+  }
+}
+
 // Find sorted list of neighbors.
 function findNeighbors(
   target: SingleFloss,
   allowedFlosses: SingleFloss[],
+  maxThreadCount: number,
 ): Neighbor[] {
-  const candidates: Floss[] = [];
-  const singles = allowedFlosses;
-  for (let i = 0; i < singles.length; i++) {
-    const a = singles[i];
-    if (a.name == target.name) {
-      continue;
-    }
-    candidates.push(a);
-
-    for (let j = i + 1; j < singles.length; j++) {
-      const b = singles[j];
-      if (b.name != target.name) {
-        candidates.push(new Blend([a, b]));
-      }
-    }
-  }
-
+  const candidates = [...allCandidates(allowedFlosses, maxThreadCount)];
   return candidates
     .map((floss) => ({ floss, distance: floss.color.deltaE2000(target.color) }))
     .toSorted((a, b) => a.distance - b.distance);
 }
 
-onmessage = (event: MessageEvent<NeighborRequest>) => {
-  const { id, targetFlossName, allowedFlossNames, resultLimit } = event.data;
+function handleRequest({
+  id,
+  targetFlossName,
+  allowedFlossNames,
+  maxThreadCount,
+  resultLimit,
+}: NeighborRequest): NeighborResponse {
   console.log(`Finding neighbors for ${targetFlossName} (ID ${id})`);
 
   const target = SingleFloss.fromName(targetFlossName);
-  const allowedFlosses =
-    allowedFlossNames?.map(SingleFloss.fromName) ?? SingleFloss.all();
-  const neighbors = findNeighbors(target, allowedFlosses);
+  const allowedFlosses = (
+    allowedFlossNames?.map(SingleFloss.fromName) ?? SingleFloss.all()
+  ).filter((f) => f.name != target.name);
+  const neighbors = findNeighbors(target, allowedFlosses, maxThreadCount);
 
-  const makeNeighborSet = (maxThreadCount: number): NeighborSetRecord => {
-    return {
-      maxThreadCount,
+  const neighborSets: NeighborSetRecord[] = [];
+  for (let count = maxThreadCount; count >= 1; count--) {
+    neighborSets.push({
+      maxThreadCount: count,
       neighbors: neighbors
         .map(toRecord)
-        .filter((n) => n.flossNames.length <= maxThreadCount)
+        .filter((n) => n.flossNames.length <= count)
         .slice(0, resultLimit),
-    };
-  };
-
-  respond({
+    });
+  }
+  return {
     id,
-    neighborSets: [makeNeighborSet(2), makeNeighborSet(1)],
-  });
+    neighborSets,
+  };
+}
+
+onmessage = (event: MessageEvent<NeighborRequest>) => {
+  postMessage(handleRequest(event.data));
 };

@@ -13,6 +13,7 @@ export class SingleFloss {
   static all(): SingleFloss[] {
     if (this._all.length == 0) {
       this._all = loadFlosses();
+      console.log(`Loaded ${this._all.length} flosses.`);
     }
     return this._all;
   }

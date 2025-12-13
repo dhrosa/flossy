@@ -18,6 +18,7 @@
     "@tanstack/react-router-devtools": "^1.140.5",
     "bulma": "^1.0.4",
     "colorjs.io": "^0.5.2",
+    "js-combinatorics": "^2.1.2",
     "react": "19.1",
     "react-dom": "19.1"
   },
