@@ -79,9 +79,10 @@ export class Blend {
     let g = 0;
     let b = 0;
     for (const floss of flosses) {
-      r += floss.color.srgb.r;
-      g += floss.color.srgb.g;
-      b += floss.color.srgb.b;
+      const srgb = floss.color.srgb;
+      r += srgb.r;
+      g += srgb.g;
+      b += srgb.b;
     }
     const n = this.flosses.length;
     this.color = new Color("srgb", [r / n, g / n, b / n]);

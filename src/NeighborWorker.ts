@@ -9,20 +9,6 @@ import {
 } from "./NeighborTypes";
 import { BaseN } from "js-combinatorics";
 
-// Neighbor of target floss.
-interface Neighbor {
-  floss: Floss;
-  distance: number;
-}
-
-// Serialize Neighbor.
-function toRecord({ floss, distance }: Neighbor): NeighborRecord {
-  if (floss instanceof SingleFloss) {
-    return { flossNames: [floss.name], distance };
-  }
-  return { flossNames: floss.flosses.map((f) => f.name), distance };
-}
-
 // All combinations of 1...N flosses.
 function* allCandidates(allowedFlosses: SingleFloss[], maxThreadCount: number) {
   for (let threadCount = 1; threadCount <= maxThreadCount; threadCount++) {
@@ -37,11 +23,15 @@ function findNeighbors(
   target: SingleFloss,
   allowedFlosses: SingleFloss[],
   maxThreadCount: number,
-): Neighbor[] {
-  const candidates = [...allCandidates(allowedFlosses, maxThreadCount)];
-  return candidates
-    .map((floss) => ({ floss, distance: floss.color.deltaE2000(target.color) }))
-    .toSorted((a, b) => a.distance - b.distance);
+): NeighborRecord[] {
+  const neighbors: NeighborRecord[] = [];
+  for (const candidate of allCandidates(allowedFlosses, maxThreadCount)) {
+    neighbors.push({
+      flossNames: candidate.flosses.map((f) => f.name),
+      distance: candidate.color.deltaE2000(target.color),
+    });
+  }
+  return neighbors.toSorted((a, b) => a.distance - b.distance);
 }
 
 function handleRequest({
@@ -64,7 +54,6 @@ function handleRequest({
     neighborSets.push({
       maxThreadCount: count,
       neighbors: neighbors
-        .map(toRecord)
         .filter((n) => n.flossNames.length == count)
         .slice(0, resultLimit),
     });
@@ -76,5 +65,7 @@ function handleRequest({
 }
 
 onmessage = (event: MessageEvent<NeighborRequest>) => {
+  console.time("neighbor calculation");
   postMessage(handleRequest(event.data));
+  console.timeEnd("neighbor calculation");
 };
