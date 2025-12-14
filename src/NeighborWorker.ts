@@ -7,13 +7,27 @@ import {
   NeighborResponse,
   NeighborSetRecord,
 } from "./NeighborTypes";
-import { BaseN } from "js-combinatorics";
+import { BaseN, Combination } from "js-combinatorics";
+
+// Unique indices of floss combinations, with replacement.
+function* monotonicBaseN(n: number, digits: number) {
+  const range: number[] = [];
+  for (let i = 0; i < n; i++) {
+    range.push(i);
+  }
+  for (const indexCombination of new BaseN(range, digits)) {
+    // Yield only monotonically increasing index sequences.
+    if (indexCombination.every((v, i, a) => i == 0 || v >= a[i - 1])) {
+      yield indexCombination;
+    }
+  }
+}
 
 // All combinations of 1...N flosses.
 function* allCandidates(allowedFlosses: SingleFloss[], maxThreadCount: number) {
   for (let threadCount = 1; threadCount <= maxThreadCount; threadCount++) {
-    for (const combination of new BaseN(allowedFlosses, threadCount)) {
-      yield new Blend(combination);
+    for (const indices of monotonicBaseN(allowedFlosses.length, threadCount)) {
+      yield new Blend(indices.map((i) => allowedFlosses[i]));
     }
   }
 }
