@@ -8,7 +8,7 @@ function Item({
   ...rest
 }: { className?: string; to: string } & ComponentProps<"a">) {
   return (
-    <Link to={to} className={"navbar-item " + (className || "")} {...rest} />
+    <Link to={to} className={"navbar-item" + (className || "")} {...rest} />
   );
 }
 
@@ -53,9 +53,7 @@ export default function Navigation() {
         <a
           role="button"
           className={"navbar-burger" + (menuActive ? " is-active" : "")}
-          onClick={() => {
-            setMenuActive(!menuActive);
-          }}
+          onClick={() => setMenuActive(!menuActive)}
         >
           <span aria-hidden={true} />
           <span aria-hidden={true} />
@@ -63,14 +61,16 @@ export default function Navigation() {
           <span aria-hidden={true} />
         </a>
       </div>
-      <div className={"navbar-menu" + (menuActive ? "is-active" : "")}>
+      <div className={"navbar-menu" + (menuActive ? " is-active" : "")}>
         <div className="navbar-start">
           <ThemeToggle />
-        </div>
-        <div className="navbar-end">
           <Item to="/collections">My Collections</Item>
           <Item to="/nearest">Find Nearest Colors</Item>
-          <Item to="/blend">Blend Colors</Item>
+        </div>
+        <div className="navbar-end">
+          <Item to="https://github.com/dhrosa/flossy">
+            Source Code on GitHub
+          </Item>
         </div>
       </div>
     </nav>
