@@ -18,3 +18,11 @@ enabled when manipulating flosses. */
 .collection-page button {
   transition: none;
 }
+
+.footer {
+  padding-bottom: 3em;
+  .cat {
+    width: fit-content;
+    margin-left: auto;
+  }
+}

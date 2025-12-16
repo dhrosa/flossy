@@ -5,6 +5,14 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const Route = createRootRoute({ component: Root });
 
+const footerCat = `
+  ʌ_ʌ
+=(._.)=  <meow!>
+ /   \\  )
+(     ) (
+ ㄴu u⅃ノ
+`;
+
 function Root() {
   return (
     <>
@@ -14,6 +22,9 @@ function Root() {
           <Outlet />
         </div>
       </section>
+      <footer className="footer">
+        <pre className="cat">{footerCat.slice(1)}</pre>
+      </footer>
       <TanStackRouterDevtools />
       <ReactQueryDevtools />
     </>
