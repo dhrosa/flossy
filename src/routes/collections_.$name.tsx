@@ -152,7 +152,7 @@ function FlossDeleter({ collection }: { collection: Collection }) {
 function FlossAdder({ collection }: { collection: Collection }) {
   const [filterText, setFilterText] = useState("");
   const flossNames = new Set(collection.flosses.map((f) => f.name));
-  const choices = SingleFloss.all().filter(
+  const choices = SingleFloss.all.filter(
     (f) => !flossNames.has(f.name) && f.matchesFilter(filterText),
   );
   return (

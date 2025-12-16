@@ -59,7 +59,7 @@ function handleRequest({
 
   const target = SingleFloss.fromName(targetFlossName);
   const allowedFlosses = (
-    allowedFlossNames?.map(SingleFloss.fromName) ?? SingleFloss.all()
+    allowedFlossNames?.map(SingleFloss.fromName) ?? SingleFloss.all
   ).filter((f) => f.name != target.name);
   const neighbors = findNeighbors(target, allowedFlosses, maxThreadCount);
 

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/all")({
 
 function AllFlossesPage() {
   const [filterText, setFilterText] = useState("");
-  const flosses = SingleFloss.all().filter((f) => f.matchesFilter(filterText));
+  const flosses = SingleFloss.all.filter((f) => f.matchesFilter(filterText));
   return (
     <div className="all-flosses">
       <p className="title is-4">Flosses Reference</p>

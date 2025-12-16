@@ -92,7 +92,7 @@ function stateReducer(
 ): State {
   const newState = { ...oldState, ...updates };
   const flossCount =
-    newState.collection?.flosses.length ?? SingleFloss.all().length;
+    newState.collection?.flosses.length ?? SingleFloss.all.length;
   const candidateCount = flossCount ** newState.maxThreadCount;
   const maxCandidateCount = 2e6;
   if (candidateCount > maxCandidateCount) {
@@ -159,7 +159,7 @@ function CollectionPicker({
         className={`button ${value ? "" : "is-primary"} ${isPending ? "is-loading" : ""}`}
         onClick={() => onChange(null)}
       >
-        All DMC flosses
+        All DMC flosses ({SingleFloss.all.length} flosses)
       </button>
       {collections &&
         collections.map((c) => (
@@ -269,7 +269,7 @@ function NearestColorsPage() {
           <Label>Choose target floss</Label>
           <Control>
             <Picker
-              flosses={SingleFloss.all()}
+              flosses={SingleFloss.all}
               currentFloss={targetFloss}
               onPick={(targetFloss) => updateState({ targetFloss })}
             />

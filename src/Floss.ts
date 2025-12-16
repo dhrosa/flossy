@@ -7,10 +7,10 @@ export class SingleFloss {
   readonly description: string;
   readonly color: Color;
 
-  private static _all: SingleFloss[] = [];
+  private static _all?: SingleFloss[];
 
-  static all(): SingleFloss[] {
-    if (this._all.length == 0) {
+  static get all(): SingleFloss[] {
+    if (this._all === undefined) {
       this._all = loadFlosses();
       console.log(`Loaded ${this._all.length} flosses.`);
     }
@@ -40,7 +40,7 @@ export class SingleFloss {
 
   // Find floss with the given name.
   static fromName(name: string): SingleFloss {
-    const floss = SingleFloss.all().find((f) => f.name === name);
+    const floss = SingleFloss.all.find((f) => f.name === name);
     if (!floss) {
       throw new Error(`Unknown floss: ${name}`);
     }
@@ -49,7 +49,7 @@ export class SingleFloss {
 
   // A random floss.
   static random(): SingleFloss {
-    const all = SingleFloss.all();
+    const all = SingleFloss.all;
     return all[Math.floor(Math.random() * all.length)];
   }
 
