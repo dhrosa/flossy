@@ -24,7 +24,10 @@ def main():
             # Another form of advertisement
             continue
         name = name.text.strip()
-        description = description.text.strip()
+        # Replace inconsistent abbreviations.
+        description = (
+            description.text.strip().replace("Grn", "Green").replace("Vy", "Very")
+        )
         color = color.text.strip()
         flosses.append(dict(name=name, description=description, color=color))
 
