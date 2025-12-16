@@ -66,6 +66,7 @@ export default function Navigation() {
           <ThemeToggle />
           <Item to="/collections">My Collections</Item>
           <Item to="/nearest">Find Nearest Colors</Item>
+          <Item to="/all">Flosses Reference</Item>
         </div>
         <div className="navbar-end">
           <Item to="https://github.com/dhrosa/flossy">
