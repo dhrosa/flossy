@@ -14,8 +14,11 @@ function openDb(): Promise<IDBDatabase> {
       return;
     }
 
-    const request = indexedDB.open("collections", 1);
+    const request = indexedDB.open("collections", 2);
     request.onerror = (event) => reject(request.error);
+    request.onblocked = (event) => {
+      console.error("Version change blocked by open database in another tab.");
+    };
     request.onsuccess = (event) => {
       _db = request.result;
       resolve(_db);
@@ -25,6 +28,10 @@ function openDb(): Promise<IDBDatabase> {
         `Upgrading collections from version ${event.oldVersion} to ${event.newVersion}`,
       );
       const db = request.result;
+      if (db.objectStoreNames.contains("collections")) {
+        console.log("Deleting old collections object store.");
+        db.deleteObjectStore("collections");
+      }
       db.createObjectStore("collections", { keyPath: "name" });
     };
   });
@@ -69,11 +76,14 @@ export class Collection {
 
   // Retrieve all collections from the database.
   static async all(): Promise<Collection[]> {
+    console.time("open");
     const db = await openDb();
-    const tx = db.transaction("collections", "readonly");
-    const store = tx.objectStore("collections");
-    const request = store.getAll();
+    console.timeEnd("open");
     return new Promise((resolve, reject) => {
+      const tx = db.transaction("collections", "readonly");
+      const store = tx.objectStore("collections");
+      const request = store.getAll();
+
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const records: CollectionRecord[] = request.result;

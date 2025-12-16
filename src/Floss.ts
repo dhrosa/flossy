@@ -1,7 +1,6 @@
 import Color from "colorjs.io";
 
-// Sourced from https://github.com/bmanturner/hex-dmc/blob/master/est_dmc_hex.txt
-import flossListText from "bundle-text:./floss.txt";
+import dmcData from "./dmc.json";
 
 export class SingleFloss {
   readonly name: string;
@@ -108,26 +107,34 @@ export function sortedFlosses(flosses: SingleFloss[]): SingleFloss[] {
   return flosses.toSorted(compareNames);
 }
 
+// Sort comparator for flosses by name. Non-numeric names are sorted earlier.
 function compareNames(a: Floss, b: Floss): number {
-  const normalizeName = (name: string): string => {
-    if (isNaN(Number(name))) {
-      return name;
-    }
-    return name.padStart(4, "0");
-  };
-  return normalizeName(a.name).localeCompare(normalizeName(b.name));
+  const numberA = Number(a.name);
+  const numberB = Number(b.name);
+  // Two string names; compare as strings.
+  if (isNaN(numberA) && isNaN(numberB)) {
+    return a.name.localeCompare(b.name);
+  }
+  // String vs number; A should sort first.
+  if (isNaN(numberA)) {
+    return -1;
+  }
+  // Number vs string; B should sort first.
+  if (isNaN(numberB)) {
+    return 1;
+  }
+  // Both numbers; compare as numbers.
+  return numberA - numberB;
 }
 
 function loadFlosses(): SingleFloss[] {
-  let lines = flossListText.split("\n").map((line) => line.trim());
-
   var entries: SingleFloss[] = [];
-  for (let i = 0; i < lines.length; i += 3) {
+  for (const { name, description, color } of dmcData) {
     entries.push(
       new SingleFloss({
-        name: lines[i],
-        description: lines[i + 1],
-        color: new Color("#" + lines[i + 2]),
+        name,
+        description,
+        color: new Color(color),
       }),
     );
   }
