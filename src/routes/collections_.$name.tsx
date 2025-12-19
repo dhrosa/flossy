@@ -34,16 +34,15 @@ function CollectionPage() {
 
   return (
     <>
-      <p className="title is-4 has-text-centered">
-        Collection: <em>{collection.name}</em>
-      </p>
-
-      <div className="collection-page columns">
-        <div className="column">
+      <div className="collection-page">
+        <div className="box">
+          <p className="title is-4 has-text-centered">
+            Collection: <em>{collection.name}</em>
+          </p>
           <p className="title is-5">Flosses currently in collection</p>
           <FlossDeleter collection={collection} />
         </div>
-        <div className="column box">
+        <div className="box">
           <p className="title is-5">Add new flosses to collection</p>
           <FlossAdder collection={collection} />
         </div>

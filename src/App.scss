@@ -1,11 +1,15 @@
 @use "~bulma/bulma";
 
 :root {
-  --bulma-primary-h: 284deg;
-  --bulma-primary-l: 70%;
+  --bulma-primary-h: 275deg;
+  --bulma-primary-s: 100%;
+  --bulma-primary-l: 75%;
+
+  background-color: var(--bulma-primary-soft);
 }
 
-.collections {
+.collections-page {
+  width: fit-content;
   margin-left: auto;
   margin-right: auto;
   td {

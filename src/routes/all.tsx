@@ -13,7 +13,7 @@ function AllFlossesPage() {
   const [filterText, setFilterText] = useState("");
   const flosses = SingleFloss.all.filter((f) => f.matchesFilter(filterText));
   return (
-    <div className="all-flosses">
+    <div className="all-flosses box">
       <p className="title is-4">Flosses Reference</p>
       <Field>
         <Label>Search</Label>

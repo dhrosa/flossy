@@ -214,20 +214,23 @@ export function CollectionsPage() {
 
   return (
     <>
-      <table className="collections table">
-        <thead>
-          <tr>
-            <th>Collection Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <NewCollectionRow />
-          {collections.map((c) => (
-            <CollectionRow key={c.name} collection={c} />
-          ))}
-        </tbody>
-      </table>
+      <div className="collections-page box">
+        <p className="title is-4">My Collections</p>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Collection Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <NewCollectionRow />
+            {collections.map((c) => (
+              <CollectionRow key={c.name} collection={c} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

@@ -214,7 +214,7 @@ function NeighborComponent({ neighbor }: { neighbor: Neighbor }) {
 function NeighborSetComponent({ neighborSet }: { neighborSet: NeighborSet }) {
   const { maxThreadCount, neighbors } = neighborSet;
   return (
-    <div className="block">
+    <div className="block box">
       <p className="title is-6">
         {maxThreadCount == 1
           ? "Closest single flosses"
@@ -263,8 +263,8 @@ function NearestColorsPage() {
 
   return (
     <div className="container is-max-desktop">
-      <p className="title is-4">Nearest Color Finder</p>
       <div className="box">
+        <p className="title is-4">Nearest Color Finder</p>
         <Field>
           <Label>Choose target floss</Label>
           <Control>
