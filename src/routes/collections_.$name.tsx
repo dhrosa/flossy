@@ -7,6 +7,7 @@ import { SingleFloss } from "../Floss";
 import { Control, Field, Label } from "../Form";
 import { useState } from "react";
 import { Symbol } from "../Symbol";
+import { copyAsCsv, downloadAsCsv } from "../toCsv";
 
 export const Route = createFileRoute("/collections_/$name")({
   component: CollectionPage,
@@ -39,6 +40,25 @@ function CollectionPage() {
           <p className="title is-4 has-text-centered">
             Collection: <em>{collection.name}</em>
           </p>
+          <div className="buttons">
+            <a className="button" onClick={() => copyAsCsv(collection.flosses)}>
+              <span className="icon is-small">
+                <Symbol name="content_copy" />
+              </span>
+              <span>Copy as CSV</span>
+            </a>
+            <a
+              className="button"
+              onClick={() =>
+                downloadAsCsv(collection.name + ".csv", collection.flosses)
+              }
+            >
+              <span className="icon is-small">
+                <Symbol name="download" />
+              </span>
+              <span>Download as CSV</span>
+            </a>
+          </div>
           <p className="title is-5">Flosses currently in collection</p>
           <FlossDeleter collection={collection} />
         </div>

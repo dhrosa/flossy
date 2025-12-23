@@ -4,6 +4,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SingleFloss } from "../Floss";
 import { useState } from "react";
 import { Control, Field, Label } from "../Form";
+import { downloadAsCsv } from "../toCsv";
+import { Symbol } from "../Symbol";
 
 export const Route = createFileRoute("/all")({
   component: AllFlossesPage,
@@ -15,6 +17,19 @@ function AllFlossesPage() {
   return (
     <div className="all-flosses box">
       <p className="title is-4">Flosses Reference</p>
+      <Field>
+        <Control>
+          <button
+            className="button"
+            onClick={() => downloadAsCsv("dmc.csv", SingleFloss.all)}
+          >
+            <span className="icon">
+              <Symbol name="download" />
+            </span>
+            <span>Download as CSV</span>
+          </button>
+        </Control>
+      </Field>
       <Field>
         <Label>Search</Label>
         <Control>
