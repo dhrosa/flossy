@@ -13,6 +13,7 @@ import {
 } from "../NeighborTypes";
 import { useQuery } from "@tanstack/react-query";
 import { Collection } from "../Collection";
+import { PageTitle } from "../PageTitle";
 
 export const Route = createFileRoute("/nearest")({
   component: NearestColorsPage,
@@ -263,8 +264,8 @@ function NearestColorsPage() {
 
   return (
     <div className="container is-max-desktop">
+      <PageTitle>Find Nearest Colors</PageTitle>
       <div className="box">
-        <p className="title is-4">Nearest Color Finder</p>
         <Field>
           <Label>Choose target floss</Label>
           <Control>

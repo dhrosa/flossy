@@ -8,6 +8,7 @@ import { Symbol } from "../Symbol";
 import { Control, ErrorHelp, Field, Label } from "../Form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SingleFloss } from "../Floss";
+import { PageTitle } from "../PageTitle";
 
 export const Route = createFileRoute("/collections")({
   component: CollectionsPage,
@@ -243,16 +244,14 @@ export function CollectionsPage() {
 
   return (
     <div className="collections-page">
-      <p className="title is-4">My Collections</p>
-
-      <NewCollectionButton />
-
+      <PageTitle>My Collections</PageTitle>
       <div className="block collections ">
         {collections &&
           collections.map((c) => (
             <CollectionCard key={c.name} collection={c} />
           ))}
       </div>
+      <NewCollectionButton />
     </div>
   );
 }

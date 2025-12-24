@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Control, Field, Label } from "../Form";
 import { downloadAsCsv } from "../toCsv";
 import { Symbol } from "../Symbol";
+import { PageTitle } from "../PageTitle";
 
 export const Route = createFileRoute("/all")({
   component: AllFlossesPage,
@@ -15,51 +16,53 @@ function AllFlossesPage() {
   const [filterText, setFilterText] = useState("");
   const flosses = SingleFloss.all.filter((f) => f.matchesFilter(filterText));
   return (
-    <div className="all-flosses box">
-      <p className="title is-4">Flosses Reference</p>
-      <Field>
-        <Control>
-          <button
-            className="button"
-            onClick={() => downloadAsCsv("dmc.csv", SingleFloss.all)}
-          >
-            <span className="icon">
-              <Symbol name="download" />
-            </span>
-            <span>Download as CSV</span>
-          </button>
-        </Control>
-      </Field>
-      <Field>
-        <Label>Search</Label>
-        <Control>
-          <input
-            className="input"
-            type="text"
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-            placeholder="Search by name or description..."
-          />
-        </Control>
-      </Field>
-      <table className="table is-striped is-hoverable is-fullwidth is-bordered">
-        <thead>
-          <tr>
-            <th>Color</th>
-            <th>Name</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {flosses.map(({ name, description, cssStyle }) => (
-            <tr key={name}>
-              <td style={cssStyle}></td>
-              <td>{name}</td>
-              <td>{description}</td>
+    <div className="all-flosses-page">
+      <PageTitle>Flosses Reference</PageTitle>
+      <div className="box">
+        <Field>
+          <Control>
+            <button
+              className="button"
+              onClick={() => downloadAsCsv("dmc.csv", SingleFloss.all)}
+            >
+              <span className="icon">
+                <Symbol name="download" />
+              </span>
+              <span>Download as CSV</span>
+            </button>
+          </Control>
+        </Field>
+        <Field>
+          <Label>Search</Label>
+          <Control>
+            <input
+              className="input"
+              type="text"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="Search by name or description..."
+            />
+          </Control>
+        </Field>
+        <table className="table is-striped is-hoverable is-fullwidth is-bordered">
+          <thead>
+            <tr>
+              <th>Color</th>
+              <th>Name</th>
+              <th>Description</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {flosses.map(({ name, description, cssStyle }) => (
+              <tr key={name}>
+                <td style={cssStyle}></td>
+                <td>{name}</td>
+                <td>{description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
