@@ -20,10 +20,17 @@
   }
 }
 
-/* The amount of buttons on this page adds a noticable lag if transitions are
+.collection-page {
+  /* The amount of buttons on this page adds a noticable lag if transitions are
 enabled when manipulating flosses. */
-.collection-page button {
-  transition: none;
+  button {
+    transition: none;
+  }
+
+  /* Make the non-button portion of the floss tags fill available space. */
+  .floss .tag:first-child {
+    flex: 1;
+  }
 }
 
 .footer {

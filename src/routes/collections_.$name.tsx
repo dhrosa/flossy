@@ -85,7 +85,7 @@ function FlossTagWithButton({
   buttonAction: () => void;
 }) {
   return (
-    <div className="tags has-addons are-medium">
+    <div className="floss tags has-addons are-medium">
       <span className="tag" style={floss.cssStyle} title={floss.description}>
         {floss.name}
       </span>
@@ -158,13 +158,13 @@ function FlossTagWithAdd({
 // Component for showing and deleting flosses from a collection.
 function FlossDeleter({ collection }: { collection: Collection }) {
   return (
-    <Field className="is-grouped is-grouped-multiline">
-      {[...collection.flosses].map((f: SingleFloss) => (
-        <Control key={f.name}>
+    <div className="grid">
+      {[...collection.flosses].map((f) => (
+        <div className="cell" key={f.name}>
           <FlossTagWithDelete collection={collection} floss={f} />
-        </Control>
+        </div>
       ))}
-    </Field>
+    </div>
   );
 }
 
@@ -188,13 +188,13 @@ function FlossAdder({ collection }: { collection: Collection }) {
           />
         </Control>
       </Field>
-      <Field className="is-grouped is-grouped-multiline">
+      <div className="grid">
         {choices.map((f) => (
-          <Control key={f.name}>
+          <div className="cell" key={f.name}>
             <FlossTagWithAdd collection={collection} floss={f} />
-          </Control>
+          </div>
         ))}
-      </Field>
+      </div>
     </>
   );
 }
