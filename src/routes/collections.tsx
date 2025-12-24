@@ -146,10 +146,12 @@ function DeleteButton({ collection }: { collection: Collection }) {
 
 function CollectionCard({ collection }: { collection: Collection }) {
   return (
-    <div className="card" style={{ width: "240px" }}>
+    <div className="card" style={{ width: "360px" }}>
       <div className="card-image">
         <figure className="image is-4by3">
-          <FlossPreview flosses={collection.flosses} />
+          <Link to="/collections/$name" params={{ name: collection.name }}>
+            <FlossPreview flosses={collection.flosses} />
+          </Link>
         </figure>
       </div>
       <div className="card-header">
@@ -157,6 +159,13 @@ function CollectionCard({ collection }: { collection: Collection }) {
       </div>
 
       <div className="card-footer">
+        <Link
+          className="card-footer-item"
+          to="/collections/$name"
+          params={{ name: collection.name }}
+        >
+          View
+        </Link>
         <RenameButton collection={collection} />
         <DeleteButton collection={collection} />
       </div>

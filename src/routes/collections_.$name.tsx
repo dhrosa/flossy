@@ -8,6 +8,7 @@ import { Control, Field, Label } from "../Form";
 import { useState } from "react";
 import { Symbol } from "../Symbol";
 import { copyAsCsv, downloadAsCsv } from "../toCsv";
+import { PageTitle } from "../PageTitle";
 
 export const Route = createFileRoute("/collections_/$name")({
   component: CollectionPage,
@@ -36,10 +37,10 @@ function CollectionPage() {
   return (
     <>
       <div className="collection-page">
+        <PageTitle>
+          Collection: <em>{collection.name}</em>
+        </PageTitle>
         <div className="box">
-          <p className="title is-4 has-text-centered">
-            Collection: <em>{collection.name}</em>
-          </p>
           <div className="buttons">
             <a className="button" onClick={() => copyAsCsv(collection.flosses)}>
               <span className="icon is-small">
