@@ -1,16 +1,16 @@
 // Page for viewing basic information about all collections.
 
 import { useRef, useState } from "react";
-import { Collection } from "../Collection";
+import { Collection } from "../../Collection";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Modal, useModalState } from "../Modal";
-import { Symbol } from "../Symbol";
-import { Control, ErrorHelp, Field, Label } from "../Form";
+import { Modal, useModalState } from "../../Modal";
+import { Symbol } from "../../Symbol";
+import { Control, ErrorHelp, Field, Label } from "../../Form";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { SingleFloss } from "../Floss";
-import { PageTitle } from "../PageTitle";
+import { SingleFloss } from "../../Floss";
+import { PageTitle } from "../../PageTitle";
 
-export const Route = createFileRoute("/collections")({
+export const Route = createFileRoute("/collections/")({
   component: CollectionsPage,
 });
 

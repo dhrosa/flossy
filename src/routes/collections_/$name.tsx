@@ -2,13 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Collection } from "../Collection";
-import { SingleFloss } from "../Floss";
-import { Control, Field, Label } from "../Form";
+import { Collection } from "../../Collection";
+import { SingleFloss } from "../../Floss";
+import { Control, Field, Label } from "../../Form";
 import { useState } from "react";
-import { Symbol } from "../Symbol";
-import { copyAsCsv, downloadAsCsv } from "../toCsv";
-import { PageTitle } from "../PageTitle";
+import { Symbol } from "../../Symbol";
+import { copyAsCsv, downloadAsCsv } from "../../toCsv";
+import { PageTitle } from "../../PageTitle";
 
 export const Route = createFileRoute("/collections_/$name")({
   component: CollectionPage,
