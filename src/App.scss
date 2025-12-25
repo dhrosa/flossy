@@ -8,6 +8,14 @@
   //background-color: var(--bulma-primary-soft);
 }
 
+.floss-picker {
+  .grid {
+    .floss {
+      width: 100%;
+    }
+  }
+}
+
 .collections-page {
   .collections {
     display: flex;

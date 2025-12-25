@@ -15,11 +15,7 @@ export default function Picker({
 }) {
   const { modalIsOpen, openModal, closeModal } = useModalState();
   const [searchText, setSearchText] = useState("");
-  const filteredFlosses = flosses.filter(
-    (f) =>
-      f.name.toLowerCase().includes(searchText) ||
-      f.description.toLowerCase().includes(searchText),
-  );
+  const filteredFlosses = flosses.filter((f) => f.matchesFilter(searchText));
   const initialButton = currentFloss ? (
     <FlossButton floss={currentFloss} onClick={openModal} />
   ) : (
@@ -49,14 +45,15 @@ export default function Picker({
           <div className="block">{filteredFlosses.length} results</div>
           <div className="block grid">
             {filteredFlosses.map((f) => (
-              <FlossButton
-                floss={f}
-                key={f.name}
-                onClick={() => {
-                  closeModal();
-                  onPick(f);
-                }}
-              />
+              <div className="cell" key={f.name}>
+                <FlossButton
+                  floss={f}
+                  onClick={() => {
+                    closeModal();
+                    onPick(f);
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>
