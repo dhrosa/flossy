@@ -1,12 +1,23 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
+
+/** Hook for tracking modal open/close state.  */
+export function useModalState() {
+  const [modalIsOpen, setIsOpen] = useState(false);
+
+  return {
+    modalIsOpen,
+    openModal: () => setIsOpen(true),
+    closeModal: () => setIsOpen(false),
+  };
+}
 
 export function Modal({
   children,
-  active,
+  isOpen,
   onClose,
 }: {
   children?: ReactNode;
-  active: boolean;
+  isOpen: boolean;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -21,7 +32,7 @@ export function Modal({
     };
   });
   return (
-    <div className={"modal " + (active ? "is-active" : "")}>
+    <div className={"modal " + (isOpen ? "is-active" : "")}>
       <div className="modal-background" onClick={onClose} />
       <div className="modal-content">{children}</div>
       <button

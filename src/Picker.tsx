@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SingleFloss } from "./Floss";
-import { Modal } from "./Modal";
+import { Modal, useModalState } from "./Modal";
 import { Symbol } from "./Symbol";
 import { FlossButton } from "./FlossButton";
 
@@ -13,7 +13,7 @@ export default function Picker({
   currentFloss: SingleFloss | null;
   onPick: (floss: SingleFloss) => void;
 }) {
-  const [active, setActive] = useState(false);
+  const { modalIsOpen, openModal, closeModal } = useModalState();
   const [searchText, setSearchText] = useState("");
   const filteredFlosses = flosses.filter(
     (f) =>
@@ -21,16 +21,16 @@ export default function Picker({
       f.description.toLowerCase().includes(searchText),
   );
   const initialButton = currentFloss ? (
-    <FlossButton floss={currentFloss} onClick={() => setActive(true)} />
+    <FlossButton floss={currentFloss} onClick={openModal} />
   ) : (
-    <button className="floss button" onClick={() => setActive(true)}>
+    <button className="floss button" onClick={openModal}>
       Choose Floss
     </button>
   );
   return (
     <div className="floss-picker">
       {initialButton}
-      <Modal active={active} onClose={() => setActive(false)}>
+      <Modal isOpen={modalIsOpen} onClose={closeModal}>
         <div className="box">
           <p className="block control has-icons-left">
             <input
@@ -53,7 +53,7 @@ export default function Picker({
                 floss={f}
                 key={f.name}
                 onClick={() => {
-                  setActive(false);
+                  closeModal();
                   onPick(f);
                 }}
               />

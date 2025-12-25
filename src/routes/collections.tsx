@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Collection } from "../Collection";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Modal } from "../Modal";
+import { Modal, useModalState } from "../Modal";
 import { Symbol } from "../Symbol";
 import { Control, ErrorHelp, Field, Label } from "../Form";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -30,7 +30,7 @@ function FlossPreview({ flosses }: { flosses: SingleFloss[] }) {
 }
 
 function RenameButton({ collection }: { collection: Collection }) {
-  const [modalActive, setModalActive] = useState(false);
+  const { modalIsOpen, openModal, closeModal } = useModalState();
   const queryClient = useQueryClient();
 
   // Ref for the new name input element.
@@ -41,13 +41,13 @@ function RenameButton({ collection }: { collection: Collection }) {
     mutationFn: async () => {
       await collection.rename(newNameRef.current.value);
       queryClient.invalidateQueries({ queryKey });
-      setModalActive(false);
+      closeModal();
     },
   });
 
   return (
     <>
-      <a className="card-footer-item" onClick={() => setModalActive(true)}>
+      <a className="card-footer-item" onClick={openModal}>
         <span className="icon-text">
           <span className="icon">
             <Symbol name="edit" />
@@ -55,7 +55,7 @@ function RenameButton({ collection }: { collection: Collection }) {
           <span>Rename</span>
         </span>
       </a>
-      <Modal active={modalActive} onClose={() => setModalActive(false)}>
+      <Modal isOpen={modalIsOpen} onClose={closeModal}>
         <div className="box">
           <Field>
             <Label>New Name</Label>
@@ -78,7 +78,7 @@ function RenameButton({ collection }: { collection: Collection }) {
               </button>
             </Control>
             <Control>
-              <button className="button" onClick={() => setModalActive(false)}>
+              <button className="button" onClick={closeModal}>
                 Cancel
               </button>
             </Control>
@@ -97,20 +97,20 @@ function RenameButton({ collection }: { collection: Collection }) {
 }
 
 function DeleteButton({ collection }: { collection: Collection }) {
-  const [modalActive, setModalActive] = useState(false);
+  const { modalIsOpen, openModal, closeModal } = useModalState();
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
       await collection.delete();
       queryClient.invalidateQueries({ queryKey });
-      setModalActive(false);
+      closeModal();
     },
   });
 
   return (
     <>
-      <a className="card-footer-item" onClick={() => setModalActive(true)}>
+      <a className="card-footer-item" onClick={openModal}>
         <span className="icon-text">
           <span className="icon">
             <Symbol name="delete" />
@@ -118,7 +118,7 @@ function DeleteButton({ collection }: { collection: Collection }) {
           <span>Delete</span>
         </span>
       </a>
-      <Modal active={modalActive} onClose={() => setModalActive(false)}>
+      <Modal isOpen={modalIsOpen} onClose={closeModal}>
         <div className="box">
           <p className="block">
             Are you sure you want to delete the <em>{collection.name}</em>{" "}
@@ -131,7 +131,7 @@ function DeleteButton({ collection }: { collection: Collection }) {
             >
               Delete
             </button>
-            <button className="button" onClick={() => setModalActive(false)}>
+            <button className="button" onClick={closeModal}>
               Cancel
             </button>
             {deleteMutation.isError && (
@@ -176,7 +176,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
 function NewCollectionButton() {
   const queryClient = useQueryClient();
   const [newName, setNewName] = useState("");
-  const [modalActive, setModalActive] = useState(false);
+  const { modalIsOpen, openModal, closeModal } = useModalState();
 
   // Triggered by add button.
   const addMutation = useMutation({
@@ -184,22 +184,19 @@ function NewCollectionButton() {
       await Collection.create(newName);
       setNewName("");
       queryClient.invalidateQueries({ queryKey });
-      setModalActive(false);
+      closeModal();
     },
   });
 
   return (
     <>
-      <button
-        className="block button is-success"
-        onClick={() => setModalActive(true)}
-      >
+      <button className="block button is-success" onClick={openModal}>
         <span className="icon is-small">
           <Symbol name="add" />
         </span>
         <span>Create New Collection</span>
       </button>
-      <Modal active={modalActive} onClose={() => setModalActive(false)}>
+      <Modal isOpen={modalIsOpen} onClose={closeModal}>
         <div className="box">
           <Field>
             <Label>New Collection Name</Label>
