@@ -149,7 +149,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
     <div className="card" style={{ width: "360px" }}>
       <div className="card-image">
         <figure className="image is-4by3">
-          <Link to="/collections/$name" params={{ name: collection.name }}>
+          <Link to="/collections/$name/edit" params={{ name: collection.name }}>
             <FlossPreview flosses={collection.flosses} />
           </Link>
         </figure>
@@ -161,7 +161,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
       <div className="card-footer">
         <Link
           className="card-footer-item"
-          to="/collections/$name"
+          to="/collections/$name/edit"
           params={{ name: collection.name }}
         >
           View

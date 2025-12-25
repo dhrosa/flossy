@@ -13,7 +13,7 @@ import { Route as NearestRouteImport } from './routes/nearest'
 import { Route as AllRouteImport } from './routes/all'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
-import { Route as CollectionsNameRouteImport } from './routes/collections/$name'
+import { Route as CollectionsNameEditRouteImport } from './routes/collections/$name.edit'
 
 const NearestRoute = NearestRouteImport.update({
   id: '/nearest',
@@ -35,9 +35,9 @@ const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
   path: '/collections/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsNameRoute = CollectionsNameRouteImport.update({
-  id: '/collections/$name',
-  path: '/collections/$name',
+const CollectionsNameEditRoute = CollectionsNameEditRouteImport.update({
+  id: '/collections/$name/edit',
+  path: '/collections/$name/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -45,44 +45,49 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/all': typeof AllRoute
   '/nearest': typeof NearestRoute
-  '/collections/$name': typeof CollectionsNameRoute
   '/collections': typeof CollectionsIndexRoute
+  '/collections/$name/edit': typeof CollectionsNameEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/all': typeof AllRoute
   '/nearest': typeof NearestRoute
-  '/collections/$name': typeof CollectionsNameRoute
   '/collections': typeof CollectionsIndexRoute
+  '/collections/$name/edit': typeof CollectionsNameEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/all': typeof AllRoute
   '/nearest': typeof NearestRoute
-  '/collections/$name': typeof CollectionsNameRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/collections/$name/edit': typeof CollectionsNameEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/all' | '/nearest' | '/collections/$name' | '/collections'
+  fullPaths:
+    | '/'
+    | '/all'
+    | '/nearest'
+    | '/collections'
+    | '/collections/$name/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/all' | '/nearest' | '/collections/$name' | '/collections'
+  to: '/' | '/all' | '/nearest' | '/collections' | '/collections/$name/edit'
   id:
     | '__root__'
     | '/'
     | '/all'
     | '/nearest'
-    | '/collections/$name'
     | '/collections/'
+    | '/collections/$name/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AllRoute: typeof AllRoute
   NearestRoute: typeof NearestRoute
-  CollectionsNameRoute: typeof CollectionsNameRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
+  CollectionsNameEditRoute: typeof CollectionsNameEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -115,11 +120,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections/$name': {
-      id: '/collections/$name'
-      path: '/collections/$name'
-      fullPath: '/collections/$name'
-      preLoaderRoute: typeof CollectionsNameRouteImport
+    '/collections/$name/edit': {
+      id: '/collections/$name/edit'
+      path: '/collections/$name/edit'
+      fullPath: '/collections/$name/edit'
+      preLoaderRoute: typeof CollectionsNameEditRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -129,8 +134,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AllRoute: AllRoute,
   NearestRoute: NearestRoute,
-  CollectionsNameRoute: CollectionsNameRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
+  CollectionsNameEditRoute: CollectionsNameEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
