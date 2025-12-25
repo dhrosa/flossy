@@ -10,7 +10,7 @@ import { Symbol } from "../../Symbol";
 import { copyAsCsv, downloadAsCsv } from "../../toCsv";
 import { PageTitle } from "../../PageTitle";
 
-export const Route = createFileRoute("/collections_/$name")({
+export const Route = createFileRoute("/collections/$name")({
   component: CollectionPage,
 });
 

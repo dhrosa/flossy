@@ -13,7 +13,7 @@ import { Route as NearestRouteImport } from './routes/nearest'
 import { Route as AllRouteImport } from './routes/all'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
-import { Route as CollectionsNameRouteImport } from './routes/collections_/$name'
+import { Route as CollectionsNameRouteImport } from './routes/collections/$name'
 
 const NearestRoute = NearestRouteImport.update({
   id: '/nearest',
@@ -36,7 +36,7 @@ const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsNameRoute = CollectionsNameRouteImport.update({
-  id: '/collections_/$name',
+  id: '/collections/$name',
   path: '/collections/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -60,7 +60,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/all': typeof AllRoute
   '/nearest': typeof NearestRoute
-  '/collections_/$name': typeof CollectionsNameRoute
+  '/collections/$name': typeof CollectionsNameRoute
   '/collections/': typeof CollectionsIndexRoute
 }
 export interface FileRouteTypes {
@@ -73,7 +73,7 @@ export interface FileRouteTypes {
     | '/'
     | '/all'
     | '/nearest'
-    | '/collections_/$name'
+    | '/collections/$name'
     | '/collections/'
   fileRoutesById: FileRoutesById
 }
@@ -115,8 +115,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections_/$name': {
-      id: '/collections_/$name'
+    '/collections/$name': {
+      id: '/collections/$name'
       path: '/collections/$name'
       fullPath: '/collections/$name'
       preLoaderRoute: typeof CollectionsNameRouteImport
