@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SingleFloss } from "../../Floss";
 import { Control, ErrorHelp, Field, Label } from "../../Form";
 import { PageTitle } from "../../PageTitle";
@@ -13,6 +13,8 @@ export const Route = createFileRoute("/collections/import/$name/$flossNames")({
 
 function ImportPage() {
   const { name, flossNames } = Route.useParams();
+
+  // Parse out floss names and render an error if any are invalid.
   const flosses: SingleFloss[] = [];
   for (const name of flossNames.split("+")) {
     try {
@@ -26,12 +28,16 @@ function ImportPage() {
     }
   }
 
+  // Name to save collection locally as.
   const [newName, setNewName] = useState(name);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const addMutation = useMutation({
     mutationFn: async () => {
       await Collection.create(newName, flosses);
       queryClient.invalidateQueries({ queryKey: ["collections"] });
+      // Navigate to the newly created collection.
+      navigate({ to: "/collections/edit/$name", params: { name: newName } });
     },
   });
 

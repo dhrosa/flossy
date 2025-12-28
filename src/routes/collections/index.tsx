@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal, useModalState } from "../../Modal";
 import { Symbol } from "../../Symbol";
 import { Control, ErrorHelp, Field, Label } from "../../Form";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { SingleFloss } from "../../Floss";
 import { PageTitle } from "../../PageTitle";
 
@@ -149,7 +149,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
     <div className="card" style={{ width: "360px" }}>
       <div className="card-image">
         <figure className="image is-4by3">
-          <Link to="/collections/$name/edit" params={{ name: collection.name }}>
+          <Link to="/collections/edit/$name" params={{ name: collection.name }}>
             <FlossPreview flosses={collection.flosses} />
           </Link>
         </figure>
@@ -161,7 +161,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
       <div className="card-footer">
         <Link
           className="card-footer-item"
-          to="/collections/$name/edit"
+          to="/collections/edit/$name"
           params={{ name: collection.name }}
         >
           View
@@ -177,14 +177,17 @@ function NewCollectionButton() {
   const queryClient = useQueryClient();
   const [newName, setNewName] = useState("");
   const { modalIsOpen, openModal, closeModal } = useModalState();
+  const navigate = useNavigate();
 
   // Triggered by add button.
   const addMutation = useMutation({
     mutationFn: async () => {
       await Collection.create(newName);
-      setNewName("");
       queryClient.invalidateQueries({ queryKey });
-      closeModal();
+      navigate({
+        to: "/collections/edit/$name",
+        params: { name: newName },
+      });
     },
   });
 
