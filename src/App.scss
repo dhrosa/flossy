@@ -41,6 +41,15 @@ enabled when manipulating flosses. */
   }
 }
 
+.import-page {
+  .grid .cell {
+    display: flex;
+    .floss {
+      flex: 1;
+    }
+  }
+}
+
 .footer {
   padding-bottom: 3em;
   .cat {
