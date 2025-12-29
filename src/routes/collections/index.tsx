@@ -9,6 +9,7 @@ import { Control, ErrorHelp, Field, Label } from "../../Form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { SingleFloss } from "../../Floss";
 import { PageTitle } from "../../PageTitle";
+import { toast } from "react-toastify";
 
 export const Route = createFileRoute("/collections/")({
   component: CollectionsPage,
@@ -42,6 +43,12 @@ function RenameButton({ collection }: { collection: Collection }) {
       await collection.rename(newNameRef.current.value);
       queryClient.invalidateQueries({ queryKey });
       closeModal();
+      toast.info(
+        <p>
+          Renamed collection from <em>{collection.name}</em> to{" "}
+          <em>{newNameRef.current.value}</em>.
+        </p>,
+      );
     },
   });
 
@@ -105,6 +112,11 @@ function DeleteButton({ collection }: { collection: Collection }) {
       await collection.delete();
       queryClient.invalidateQueries({ queryKey });
       closeModal();
+      toast.info(
+        <p>
+          Deleted collection: <em>{collection.name}</em>
+        </p>,
+      );
     },
   });
 
@@ -184,10 +196,16 @@ function NewCollectionButton() {
     mutationFn: async () => {
       await Collection.create(newName);
       queryClient.invalidateQueries({ queryKey });
+
       navigate({
         to: "/collections/edit/$name",
         params: { name: newName },
       });
+      toast.info(
+        <p>
+          Created collection: <em>{newName}</em>
+        </p>,
+      );
     },
   });
 
@@ -254,13 +272,13 @@ export function CollectionsPage() {
   return (
     <div className="collections-page">
       <PageTitle>My Collections</PageTitle>
+      <NewCollectionButton />
       <div className="block collections ">
         {collections &&
           collections.map((c) => (
             <CollectionCard key={c.name} collection={c} />
           ))}
       </div>
-      <NewCollectionButton />
     </div>
   );
 }

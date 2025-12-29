@@ -2,6 +2,7 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import Navigation from "../Navigation";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ToastContainer } from "react-toastify";
 
 export const Route = createRootRoute({ component: Root });
 
@@ -25,6 +26,7 @@ function Root() {
       <footer className="footer">
         <pre className="cat">{footerCat.slice(1)}</pre>
       </footer>
+      <ToastContainer />
       <TanStackRouterDevtools />
       <ReactQueryDevtools />
     </>

@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Symbol } from "../../Symbol";
 import { copyAsCsv, downloadAsCsv } from "../../toCsv";
 import { PageTitle } from "../../PageTitle";
+import { toast } from "react-toastify";
 
 export const Route = createFileRoute("/collections/edit/$name")({
   component: CollectionPage,
@@ -116,6 +117,11 @@ function FlossTagWithDelete({
         .withFlosses(collection.flosses.filter((f) => f.name !== floss.name))
         .save();
       queryClient.setQueryData(["collections", collection.name], newCollection);
+      toast.info(
+        <p>
+          Deleted floss <em>{floss.name}</em> from <em>{collection.name}</em>
+        </p>,
+      );
     },
   });
   return (
@@ -142,6 +148,11 @@ function FlossTagWithAdd({
         .withFlosses(collection.flosses.concat(floss))
         .save();
       queryClient.setQueryData(["collections", collection.name], newCollection);
+      toast.info(
+        <p>
+          Added floss <em>{floss.name}</em> to <em>{collection.name}</em>
+        </p>,
+      );
     },
   });
 

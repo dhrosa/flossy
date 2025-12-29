@@ -6,6 +6,7 @@ import { FlossButton } from "../../FlossButton";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Collection } from "../../Collection";
+import { toast } from "react-toastify";
 
 export const Route = createFileRoute("/collections/import/$name/$flossNames")({
   component: ImportPage,
@@ -38,6 +39,11 @@ function ImportPage() {
       queryClient.invalidateQueries({ queryKey: ["collections"] });
       // Navigate to the newly created collection.
       navigate({ to: "/collections/edit/$name", params: { name: newName } });
+      toast.info(
+        <p>
+          Imported collection <em>{name}</em> as <em>{newName}</em>
+        </p>,
+      );
     },
   });
 

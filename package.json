@@ -21,7 +21,8 @@
     "csv-stringify": "^6.6.0",
     "js-combinatorics": "^2.1.2",
     "react": "19.1",
-    "react-dom": "19.1"
+    "react-dom": "19.1",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@parcel/transformer-inline-string": "^2.16.1",
