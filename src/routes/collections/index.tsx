@@ -270,8 +270,14 @@ export function CollectionsPage() {
   }
 
   return (
-    <div className="collections-page">
+    <div className="collections-page container is-max-desktop">
       <PageTitle>My Collections</PageTitle>
+      <p className="block">
+        Your saved floss collections. Your floss collections are stored locally
+        on your device. If you want transfer a collection to another device, or
+        share them with another person, use the <strong>share</strong> button on
+        a collection.
+      </p>
       <NewCollectionButton />
       <div className="block collections ">
         {collections &&

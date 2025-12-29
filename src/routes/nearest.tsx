@@ -265,6 +265,16 @@ function NearestColorsPage() {
   return (
     <div className="container is-max-desktop">
       <PageTitle>Find Nearest Colors</PageTitle>
+      <p className="block">
+        Ever go to Michael's and they don't have the floss you need in-stock? Or
+        you just want to make do with whatever flosses you already have on-hand?
+        Use this tool to find flosses with a similar color.
+        <br />
+        <br />
+        If you're double-threading your needle, you can get closer color matches
+        by blending two flosses together. We support blending more colors if
+        you're threading your needle even further.
+      </p>
       <div className="box">
         <Field>
           <Label>Choose target floss</Label>
@@ -279,7 +289,7 @@ function NearestColorsPage() {
         <Field>
           <Label>
             Limit results to the following{" "}
-            <Link to="/collections">collections</Link>
+            <Link to="/collections">collection </Link>
           </Label>
           <Control>
             <CollectionPicker

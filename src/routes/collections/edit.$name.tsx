@@ -1,7 +1,7 @@
 // Page for viewing and editing one single collection
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Collection } from "../../Collection";
 import { SingleFloss } from "../../Floss";
 import { Control, Field, Label } from "../../Form";
@@ -37,9 +37,10 @@ function CollectionPage() {
 
   return (
     <>
+      <Link to="/collections">← Back to my collections</Link>
       <div className="collection-page">
         <PageTitle>
-          Collection: <em>{collection.name}</em>
+          Floss collection: <em>{collection.name}</em>
         </PageTitle>
         <div className="box">
           <div className="buttons">

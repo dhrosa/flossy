@@ -16,13 +16,17 @@ function AllFlossesPage() {
   const [filterText, setFilterText] = useState("");
   const flosses = SingleFloss.all.filter((f) => f.matchesFilter(filterText));
   return (
-    <div className="all-flosses-page">
+    <div className="all-flosses-page container is-max-desktop">
       <PageTitle>Flosses Reference</PageTitle>
+      <p className="block">
+        This is a list of every DMC floss supported by this website.
+      </p>
       <div className="box">
         <Field>
           <Control>
             <button
               className="button"
+              title="dmc.csv"
               onClick={() => downloadAsCsv("dmc.csv", SingleFloss.all)}
             >
               <span className="icon">
