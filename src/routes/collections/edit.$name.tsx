@@ -62,55 +62,53 @@ function CollectionPage() {
   };
 
   return (
-    <>
+    <div className="collection-page">
       <Link to="/collections">← Back to my collections</Link>
-      <div className="collection-page">
-        <PageTitle>
-          Floss collection: <em>{collection.name}</em>
-        </PageTitle>
-        <div className="box">
-          <Label>URL for sharing</Label>
-          <Field className="has-addons">
-            <Control className="is-expanded">
-              <input className="input" value={absoluteImportUrl} readOnly />
-            </Control>
-            <Control>
-              <button className="button" onClick={copyImportUrl}>
-                <span className="icon is-small">
-                  <Symbol name="content_copy" />
-                </span>
-                <span>Copy URL</span>
-              </button>
-            </Control>
-          </Field>
-          <div className="buttons">
-            <a className="button" onClick={() => copyAsCsv(collection.flosses)}>
+      <PageTitle>
+        Floss collection: <em>{collection.name}</em>
+      </PageTitle>
+      <div className="box">
+        <Label>URL for sharing</Label>
+        <Field className="has-addons">
+          <Control className="is-expanded">
+            <input className="input" value={absoluteImportUrl} readOnly />
+          </Control>
+          <Control>
+            <button className="button" onClick={copyImportUrl}>
               <span className="icon is-small">
                 <Symbol name="content_copy" />
               </span>
-              <span>Copy as CSV</span>
-            </a>
-            <a
-              className="button"
-              onClick={() =>
-                downloadAsCsv(collection.name + ".csv", collection.flosses)
-              }
-            >
-              <span className="icon is-small">
-                <Symbol name="download" />
-              </span>
-              <span>Download as CSV</span>
-            </a>
-          </div>
-          <p className="title is-5">Flosses currently in collection</p>
-          <FlossDeleter collection={collection} />
+              <span>Copy URL</span>
+            </button>
+          </Control>
+        </Field>
+        <div className="buttons">
+          <a className="button" onClick={() => copyAsCsv(collection.flosses)}>
+            <span className="icon is-small">
+              <Symbol name="content_copy" />
+            </span>
+            <span>Copy as CSV</span>
+          </a>
+          <a
+            className="button"
+            onClick={() =>
+              downloadAsCsv(collection.name + ".csv", collection.flosses)
+            }
+          >
+            <span className="icon is-small">
+              <Symbol name="download" />
+            </span>
+            <span>Download as CSV</span>
+          </a>
         </div>
-        <div className="box">
-          <p className="title is-5">Add new flosses to collection</p>
-          <FlossAdder collection={collection} />
-        </div>
+        <p className="title is-5">Flosses currently in collection</p>
+        <FlossDeleter collection={collection} />
       </div>
-    </>
+      <div className="box">
+        <p className="title is-5">Add new flosses to collection</p>
+        <FlossAdder collection={collection} />
+      </div>
+    </div>
   );
 }
 

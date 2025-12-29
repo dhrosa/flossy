@@ -19,7 +19,7 @@ function Root() {
     <>
       <Navigation />
       <section className="section">
-        <div className="container">
+        <div className="container is-max-desktop">
           <Outlet />
         </div>
       </section>

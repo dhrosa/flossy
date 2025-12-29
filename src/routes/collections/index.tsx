@@ -270,7 +270,7 @@ export function CollectionsPage() {
   }
 
   return (
-    <div className="collections-page container is-max-desktop">
+    <div className="collections-page">
       <PageTitle>My Collections</PageTitle>
       <p className="block">
         Your saved floss collections. Your floss collections are stored locally

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="home-page container is-max-desktop">
+    <div className="home-page">
       <PageTitle>Home</PageTitle>
       <p>
         Flossy is a tool for tracking and organization your floss{" "}

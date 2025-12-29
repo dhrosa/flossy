@@ -48,7 +48,7 @@ function ImportPage() {
   });
 
   return (
-    <div className="import-page container is-max-desktop">
+    <div className="import-page">
       <PageTitle>
         Import of collection <em>{name}</em>
       </PageTitle>

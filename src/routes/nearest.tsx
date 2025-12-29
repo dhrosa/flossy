@@ -263,7 +263,7 @@ function NearestColorsPage() {
   });
 
   return (
-    <div className="container is-max-desktop">
+    <div className="nearest-page">
       <PageTitle>Find Nearest Colors</PageTitle>
       <p className="block">
         Ever go to Michael's and they don't have the floss you need in-stock? Or
