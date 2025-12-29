@@ -275,8 +275,8 @@ export function CollectionsPage() {
       <p className="block">
         Your saved floss collections. Your floss collections are stored locally
         on your device. If you want transfer a collection to another device, or
-        share them with another person, use the <strong>share</strong> button on
-        a collection.
+        share them with another person, use the <strong>Copy URL</strong> button
+        on a collection.
       </p>
       <NewCollectionButton />
       <div className="block collections ">

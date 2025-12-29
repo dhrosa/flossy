@@ -1,7 +1,7 @@
 // Page for viewing and editing one single collection
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Collection } from "../../Collection";
 import { SingleFloss } from "../../Floss";
 import { Control, Field, Label } from "../../Form";
@@ -28,12 +28,38 @@ function CollectionPage() {
       return await Collection.get(name);
     },
   });
+  const router = useRouter();
   if (isPending) {
     return <p>Loading...</p>;
   }
   if (error) {
     return <p>Error: {error.toString()}</p>;
   }
+
+  const importLinkOptions = {
+    to: "/collections/import/$name/$flossNames",
+    params: {
+      name,
+      flossNames: collection.flosses.map(({ name }) => name).join("+"),
+    },
+  };
+  console.log(
+    window.location.origin,
+    router.buildLocation(importLinkOptions).href,
+  );
+  const absoluteImportUrl = new URL(
+    router.buildLocation(importLinkOptions).href,
+    window.location.origin,
+  ).href;
+
+  const copyImportUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(absoluteImportUrl);
+    } catch (error: unknown) {
+      toast.error(`Failed to copy URL to clipboard: ${new String(error)}`);
+    }
+    toast.info("URL copied to clipboard");
+  };
 
   return (
     <>
@@ -43,6 +69,20 @@ function CollectionPage() {
           Floss collection: <em>{collection.name}</em>
         </PageTitle>
         <div className="box">
+          <Label>URL for sharing</Label>
+          <Field className="has-addons">
+            <Control className="is-expanded">
+              <input className="input" value={absoluteImportUrl} readOnly />
+            </Control>
+            <Control>
+              <button className="button" onClick={copyImportUrl}>
+                <span className="icon is-small">
+                  <Symbol name="content_copy" />
+                </span>
+                <span>Copy URL</span>
+              </button>
+            </Control>
+          </Field>
           <div className="buttons">
             <a className="button" onClick={() => copyAsCsv(collection.flosses)}>
               <span className="icon is-small">
