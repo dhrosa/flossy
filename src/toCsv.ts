@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { SingleFloss } from "./Floss";
 import { stringify } from "csv-stringify/browser/esm/sync";
 
@@ -13,10 +14,14 @@ function toCsv(flosses: SingleFloss[]): string {
 }
 
 /** Copy flosses to clipboard as a CSV document. */
-export function copyAsCsv(flosses: SingleFloss[]): void {
-  navigator.clipboard.writeText(toCsv(flosses)).catch((error) => {
-    console.log("Failed to copy text: ", error);
-  });
+export async function copyAsCsv(flosses: SingleFloss[]) {
+  const csv = toCsv(flosses);
+  try {
+    await navigator.clipboard.writeText(csv);
+    toast.info("CSV copied to clipboard");
+  } catch (error: unknown) {
+    toast.error(`Failed to copy CSV to clipboard: ${new String(error)}`);
+  }
 }
 
 /** Prompt user to download flosses as a CSV document. */
