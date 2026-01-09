@@ -1,4 +1,5 @@
-import "./App.scss";
+import "./bulma.scss";
+import "./flossy.scss";
 
 import { createRoot } from "react-dom/client";
 import { StrictMode, useSyncExternalStore } from "react";
