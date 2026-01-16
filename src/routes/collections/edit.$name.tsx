@@ -43,10 +43,6 @@ function CollectionPage() {
       flossNames: collection.flosses.map(({ name }) => name).join("+"),
     },
   };
-  console.log(
-    window.location.origin,
-    router.buildLocation(importLinkOptions).href,
-  );
   const absoluteImportUrl = new URL(
     router.buildLocation(importLinkOptions).href,
     window.location.origin,

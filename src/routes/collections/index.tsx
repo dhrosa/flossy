@@ -156,11 +156,24 @@ function DeleteButton({ collection }: { collection: Collection }) {
   );
 }
 
+function ShareButton({ collection }: { collection: Collection }) {
+  return (
+    <a className="card-footer-item">
+      <span className="icon-text">
+        <span className="icon">
+          <Symbol name="content_copy" />
+        </span>
+        <span>Share URL</span>
+      </span>
+    </a>
+  );
+}
+
 function CollectionCard({ collection }: { collection: Collection }) {
   return (
-    <div className="card" style={{ width: "360px" }}>
+    <div className="card">
       <div className="card-image">
-        <figure className="image is-4by3">
+        <figure className="image">
           <Link to="/collections/edit/$name" params={{ name: collection.name }}>
             <FlossPreview flosses={collection.flosses} />
           </Link>
@@ -180,6 +193,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
         </Link>
         <RenameButton collection={collection} />
         <DeleteButton collection={collection} />
+        <ShareButton collection={collection} />
       </div>
     </div>
   );
@@ -275,8 +289,8 @@ export function CollectionsPage() {
       <p className="block">
         Your saved floss collections. Your floss collections are stored locally
         on your device. If you want transfer a collection to another device, or
-        share them with another person, use the <strong>Copy URL</strong> button
-        on a collection.
+        share them with another person, use the <strong>Share URL</strong>{" "}
+        button on a collection.
       </p>
       <NewCollectionButton />
       <div className="block collections ">

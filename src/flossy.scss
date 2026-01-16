@@ -20,9 +20,13 @@
     flex-wrap: wrap;
     justify-content: space-around;
   }
-  .floss-preview {
+  .card {
     width: 100%;
-    height: 100%;
+
+    .floss-preview {
+      width: 100%;
+      height: 180px;
+    }
   }
 }
 
