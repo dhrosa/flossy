@@ -6,7 +6,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal, useModalState } from "../../Modal";
 import { Symbol } from "../../Symbol";
 import { Control, ErrorHelp, Field, Label } from "../../Form";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useRouter,
+} from "@tanstack/react-router";
 import { SingleFloss } from "../../Floss";
 import { PageTitle } from "../../PageTitle";
 import { toast } from "react-toastify";
@@ -157,8 +162,30 @@ function DeleteButton({ collection }: { collection: Collection }) {
 }
 
 function ShareButton({ collection }: { collection: Collection }) {
+  const { name } = collection;
+  const router = useRouter();
+  const importLinkOptions = {
+    to: "/collections/import/$name/$flossNames",
+    params: {
+      name,
+      flossNames: collection.flosses.map(({ name }) => name).join("+"),
+    },
+  };
+  const absoluteImportUrl = new URL(
+    router.buildLocation(importLinkOptions).href,
+    window.location.origin,
+  ).href;
+
+  const copyImportUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(absoluteImportUrl);
+      toast.info("URL copied to clipboard");
+    } catch (error: unknown) {
+      toast.error(`Failed to copy URL to clipboard: ${new String(error)}`);
+    }
+  };
   return (
-    <a className="card-footer-item">
+    <a className="card-footer-item" onClick={copyImportUrl}>
       <span className="icon-text">
         <span className="icon">
           <Symbol name="content_copy" />
