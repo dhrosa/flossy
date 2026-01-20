@@ -1,6 +1,6 @@
 // Page for viewing basic information about all collections.
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Collection } from "../../Collection";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal, useModalState } from "../../Modal";
@@ -38,20 +38,18 @@ function FlossPreview({ flosses }: { flosses: SingleFloss[] }) {
 function RenameButton({ collection }: { collection: Collection }) {
   const { modalIsOpen, openModal, closeModal } = useModalState();
   const queryClient = useQueryClient();
-
-  // Ref for the new name input element.
-  const newNameRef = useRef(document.createElement("input"));
+  const [newName, setNewName] = useState(collection.name);
 
   // Triggered by rename button.
   const renameMutation = useMutation({
     mutationFn: async () => {
-      await collection.rename(newNameRef.current.value);
+      await collection.rename(newName);
       queryClient.invalidateQueries({ queryKey });
       closeModal();
       toast.info(
         <p>
           Renamed collection from <em>{collection.name}</em> to{" "}
-          <em>{newNameRef.current.value}</em>.
+          <em>{newName}</em>.
         </p>,
       );
     },
@@ -75,8 +73,8 @@ function RenameButton({ collection }: { collection: Collection }) {
               <input
                 className="input"
                 type="text"
-                ref={newNameRef}
-                defaultValue={collection.name}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
               />
             </Control>
           </Field>
