@@ -83,28 +83,15 @@ interface State {
   maxThreadCount: number;
   // Number of results per neighbor set.
   resultLimit: number;
-  // Message indicating why a state update could not be applied.
-  validationError: string | null;
 }
 
-function stateReducer(
-  oldState: State,
-  updates: Omit<Partial<State>, "validationError">,
-): State {
-  const newState = { ...oldState, ...updates };
-  const flossCount =
-    newState.collection?.flosses.length ?? SingleFloss.all.length;
-  const candidateCount = flossCount ** newState.maxThreadCount;
-  const maxCandidateCount = 2e6;
-  if (candidateCount > maxCandidateCount) {
-    return {
-      ...oldState,
-      validationError: `${candidateCount.toLocaleString()} combinations to search through \
-      is greater than limit of ${maxCandidateCount.toLocaleString()}. \
-      Either choose a smaller collection or reduce the thread count.`,
-    };
-  }
-  return { ...newState, validationError: null };
+function validCandidateCount(
+  collection: Collection | null,
+  maxThreadCount: number,
+): boolean {
+  const flossCount = collection?.flosses.length ?? SingleFloss.all.length;
+  const candidateCount = flossCount ** maxThreadCount;
+  return candidateCount < 2e6;
 }
 
 // Issue request to background worker to find neighbors.
@@ -138,9 +125,11 @@ async function findNeighbors({
 function CollectionPicker({
   value,
   onChange,
+  maxThreadCount,
 }: {
   value: Collection | null;
   onChange: (value: Collection | null) => void;
+  maxThreadCount: number;
 }) {
   const {
     error,
@@ -159,6 +148,7 @@ function CollectionPicker({
       <button
         className={`button ${value ? "" : "is-primary"} ${isPending ? "is-loading" : ""}`}
         onClick={() => onChange(null)}
+        disabled={!validCandidateCount(null, maxThreadCount)}
       >
         All DMC flosses ({SingleFloss.all.length} flosses)
       </button>
@@ -168,6 +158,7 @@ function CollectionPicker({
             key={c.name}
             className={`button ${value?.name === c.name ? "is-primary" : ""}`}
             onClick={() => onChange(c)}
+            disabled={!validCandidateCount(c, maxThreadCount)}
           >
             {c.name} ({c.flosses.length} flosses)
           </button>
@@ -179,9 +170,11 @@ function CollectionPicker({
 function MaxThreadCountPicker({
   value,
   onChange,
+  collection,
 }: {
   value: number;
   onChange: (value: number) => void;
+  collection: Collection | null;
 }) {
   const options = [1, 2, 3, 4];
   return (
@@ -191,6 +184,7 @@ function MaxThreadCountPicker({
           key={n}
           className={`button ${value === n ? "is-primary" : ""}`}
           onClick={() => onChange(n)}
+          disabled={!validCandidateCount(collection, n)}
         >
           {n}
         </button>
@@ -231,21 +225,19 @@ function NeighborSetComponent({ neighborSet }: { neighborSet: NeighborSet }) {
 }
 
 function NearestColorsPage() {
-  const [state, updateState] = useReducer(stateReducer, {
-    targetFloss: SingleFloss.random(),
-    collection: null,
-    maxThreadCount: 2,
-    resultLimit: 12,
-    validationError: null,
-  });
+  const [state, updateState] = useReducer(
+    (oldState: State, updates: Partial<State>): State => {
+      return { ...oldState, ...updates };
+    },
+    {
+      targetFloss: SingleFloss.random(),
+      collection: null,
+      maxThreadCount: 2,
+      resultLimit: 12,
+    },
+  );
 
-  const {
-    targetFloss,
-    collection,
-    maxThreadCount,
-    resultLimit,
-    validationError,
-  } = state;
+  const { targetFloss, collection, maxThreadCount, resultLimit } = state;
 
   const {
     error,
@@ -274,6 +266,10 @@ function NearestColorsPage() {
         If you're double-threading your needle, you can get closer color matches
         by blending two flosses together. We support blending more colors if
         you're threading your needle even further.
+        <br />
+        <br />
+        If a button is disabled, try using a smaller collection or a smaller
+        maximum thread count.
       </p>
       <div className="box">
         <Field>
@@ -295,6 +291,7 @@ function NearestColorsPage() {
             <CollectionPicker
               value={collection}
               onChange={(collection) => updateState({ collection })}
+              maxThreadCount={maxThreadCount}
             />
           </Control>
         </Field>
@@ -304,6 +301,7 @@ function NearestColorsPage() {
             <MaxThreadCountPicker
               value={maxThreadCount}
               onChange={(maxThreadCount) => updateState({ maxThreadCount })}
+              collection={collection}
             />
           </Control>
         </Field>
@@ -322,13 +320,11 @@ function NearestColorsPage() {
             />
           </Control>
         </Field>
-        {validationError && <ErrorHelp>{validationError}</ErrorHelp>}
       </div>
       <div>
         {error && <ErrorHelp>Error: {error.toString()}</ErrorHelp>}
         {isPending && <progress className="progress" />}
-        {!validationError &&
-          neighborSets &&
+        {neighborSets &&
           neighborSets.map((set) => (
             <NeighborSetComponent key={set.maxThreadCount} neighborSet={set} />
           ))}
